@@ -5,6 +5,7 @@ const { sendSuccess } = require('../utils/responseHelper');
 const AppError = require('../utils/AppError');
 const { protectPage, redirectIfAuthenticated } = require('../middlewares/authMiddleware');
 const authRoutes = require('./authRoutes');
+const barangRoutes = require('./barangRoutes');
 
 const router = express.Router();
 
@@ -37,7 +38,7 @@ router.get('/login', redirectIfAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'views', 'login.html'));
 });
 
-// Halaman verifikasi sesi terproteksi sementara sebelum views/dashboard.html dibuat di Tahap 5
+// Halaman verifikasi sementara sebelum views/dashboard.html lengkap dibangun di Tahap 5
 router.get('/dashboard', protectPage, (req, res) => {
   res.send(`
     <!DOCTYPE html>
@@ -45,25 +46,26 @@ router.get('/dashboard', protectPage, (req, res) => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Verifikasi Sesi JWT — Gudang Olahraga</title>
+      <title>Dashboard Sementara — Gudang Olahraga</title>
       <link href="/css/output.css" rel="stylesheet">
     </head>
     <body class="bg-slate-100 min-h-screen flex items-center justify-center p-6">
       <div class="bg-white max-w-md w-full rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
         <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
-          Autentikasi JWT Berhasil (Tahap 2)
+          Sesi JWT Aktif
         </span>
         <h1 class="text-xl font-bold text-slate-900">Halo, ${req.user.nama_pengguna}!</h1>
         <p class="text-sm text-slate-600">
-          Token JWT Anda valid. Halaman ini membuktikan middleware <code>protectPage</code> berhasil memverifikasi sesi login Anda.
+          Modul Manajemen Data Inventaris (Tahap 3) sudah siap digunakan.
         </p>
-        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs text-slate-700 space-y-1">
-          <p><strong>Email:</strong> ${req.user.email}</p>
-          <p><strong>Jabatan:</strong> ${req.user.jabatan}</p>
+        <div class="flex flex-col gap-2 pt-2">
+          <a href="/inventaris" class="w-full text-center py-2.5 px-4 rounded-lg bg-blue-800 hover:bg-blue-900 text-white text-sm font-semibold transition">
+            Buka Halaman Data Inventaris &rarr;
+          </a>
+          <button id="btn-logout-test" class="w-full py-2.5 px-4 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 text-sm font-medium cursor-pointer transition">
+            Keluar (Logout)
+          </button>
         </div>
-        <button id="btn-logout-test" class="w-full py-2.5 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium cursor-pointer transition">
-          Keluar (Logout)
-        </button>
       </div>
       <script src="/js/api.js"></script>
       <script src="/js/auth.js"></script>
@@ -72,12 +74,16 @@ router.get('/dashboard', protectPage, (req, res) => {
   `);
 });
 
+router.get('/inventaris', protectPage, (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'views', 'inventaris.html'));
+});
+
 // =========================================================================
 // 3. API ROUTES MODUL FITUR
 // =========================================================================
 router.use('/api/auth', authRoutes);
+router.use('/api/barang', barangRoutes);
 
-// Tahap 3 (M2/M3 - Inventaris) : router.use('/api/barang', require('./barangRoutes'));
 // Tahap 4 (M4/S1 - Stok)       : router.use('/api/stok', require('./stokRoutes'));
 // Tahap 5 (M5 - Dashboard)     : router.use('/api/dashboard', require('./dashboardRoutes'));
 // Tahap 6 (M7 - Mock Chatbot)  : router.use('/api/chatbot', require('./chatbotRoutes'));
