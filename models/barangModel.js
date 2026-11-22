@@ -50,12 +50,24 @@ async function findAll({ search = '', kategori = '', kondisi = '', statusStok = 
     );
   }
 
-  if (kondisi === 'Baik') {
-    items = items.filter((b) => b.stok_baik > 0);
-  } else if (kondisi === 'Cukup') {
-    items = items.filter((b) => b.stok_cukup > 0);
-  } else if (kondisi === 'Rusak') {
-    items = items.filter((b) => b.stok_rusak > 0);
+  if (kondisi) {
+    const selectedKondisi = Array.isArray(kondisi)
+      ? kondisi
+      : String(kondisi)
+          .split(',')
+          .map((k) => k.trim())
+          .filter(Boolean);
+
+    if (selectedKondisi.length > 0 && selectedKondisi.length < 3) {
+      items = items.filter((b) =>
+        selectedKondisi.some((k) => {
+          if (k === 'Baik') return b.stok_baik > 0;
+          if (k === 'Cukup') return b.stok_cukup > 0;
+          if (k === 'Rusak') return b.stok_rusak > 0;
+          return false;
+        })
+      );
+    }
   }
 
   if (statusStok === 'TERSEDIA') {

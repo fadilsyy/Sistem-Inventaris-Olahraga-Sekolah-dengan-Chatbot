@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const toastAlert = document.getElementById('toast-alert');
   const searchInput = document.getElementById('filter-search');
   const kategoriFilter = document.getElementById('filter-kategori');
-  const kondisiFilter = document.getElementById('filter-kondisi');
+  const kondisiCheckboxes = document.querySelectorAll('.chk-filter-kondisi');
   const statusStokFilter = document.getElementById('filter-status-stok');
   const btnResetFilter = document.getElementById('btn-reset-filter');
 
@@ -148,7 +148,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams();
     if (searchInput.value.trim()) params.append('search', searchInput.value.trim());
     if (kategoriFilter.value) params.append('kategori', kategoriFilter.value);
-    if (kondisiFilter.value) params.append('kondisi', kondisiFilter.value);
+
+    const selectedKondisi = Array.from(kondisiCheckboxes)
+      .filter((chk) => chk.checked)
+      .map((chk) => chk.value);
+    if (selectedKondisi.length > 0 && selectedKondisi.length < kondisiCheckboxes.length) {
+      params.append('kondisi', selectedKondisi.join(','));
+    }
+
     if (statusStokFilter.value) params.append('statusStok', statusStokFilter.value);
 
     const queryString = params.toString() ? `?${params.toString()}` : '';
@@ -768,6 +775,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!activeKondisiItem) return;
 
     const dari = selectKondisiDari.value;
+
+    // Nonaktifkan opsi pada Kondisi Baru yang sama dengan Kondisi Awal
+    Array.from(selectKondisiKe.options).forEach((opt) => {
+      opt.disabled = opt.value === dari;
+    });
+
+    // Jika Kondisi Baru sedang bernilai sama dengan Kondisi Awal, pindahkan otomatis
+    if (selectKondisiKe.value === dari) {
+      const alternatif = ['Baik', 'Cukup', 'Rusak'].find((k) => k !== dari);
+      if (alternatif) selectKondisiKe.value = alternatif;
+    }
+
     const ke = selectKondisiKe.value;
     const stokMap = {
       Baik: activeKondisiItem.stok_baik,
@@ -864,44 +883,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  function syncKondisiModalConstraints() {
-    if (!activeKondisiItem) return;
-
-    const dari = selectKondisiDari.value;
-
-    // Nonaktifkan opsi pada Kondisi Baru yang sama dengan Kondisi Awal
-    Array.from(selectKondisiKe.options).forEach((opt) => {
-      opt.disabled = opt.value === dari;
-    });
-
-    // Jika Kondisi Baru sedang bernilai sama dengan Kondisi Awal, pindahkan otomatis
-    if (selectKondisiKe.value === dari) {
-      const alternatif = ['Baik', 'Cukup', 'Rusak'].find((k) => k !== dari);
-      if (alternatif) selectKondisiKe.value = alternatif;
-    }
-
-    const ke = selectKondisiKe.value;
-    const stokMap = {
-      Baik: activeKondisiItem.stok_baik,
-      Cukup: activeKondisiItem.stok_cukup,
-      Rusak: activeKondisiItem.stok_rusak
-    };
-
-    const maxAvail = stokMap[dari] || 0;
-    inputKondisiJumlah.max = maxAvail;
-    kondisiMaxHint.textContent = `Tersedia pada kondisi ${dari}: ${maxAvail} ${activeKondisiItem.satuan}.`;
-
-    // Sembunyikan kolom keterangan jika tujuan = Baik; tampilkan & wajib jika Cukup atau Rusak
-    if (ke === 'Baik') {
-      wrapperKondisiKet.classList.add('hidden');
-      inputKondisiKet.required = false;
-      inputKondisiKet.value = '';
-    } else {
-      wrapperKondisiKet.classList.remove('hidden');
-      inputKondisiKet.required = true;
-    }
-  }
-
   // =========================================================================
   // EVENT LISTENERS UTAMA
   // =========================================================================
@@ -913,14 +894,20 @@ document.addEventListener('DOMContentLoaded', () => {
     debounceTimer = setTimeout(loadInventaris, 300);
   });
 
-  [kategoriFilter, kondisiFilter, statusStokFilter].forEach((el) => {
+  [kategoriFilter, statusStokFilter].forEach((el) => {
     el.addEventListener('change', loadInventaris);
+  });
+
+  kondisiCheckboxes.forEach((chk) => {
+    chk.addEventListener('change', loadInventaris);
   });
 
   btnResetFilter.addEventListener('click', () => {
     searchInput.value = '';
     kategoriFilter.value = '';
-    kondisiFilter.value = '';
+    kondisiCheckboxes.forEach((chk) => {
+      chk.checked = false;
+    });
     statusStokFilter.value = '';
     loadInventaris();
   });

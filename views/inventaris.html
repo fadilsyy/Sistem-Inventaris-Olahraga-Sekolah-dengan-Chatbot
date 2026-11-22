@@ -103,13 +103,21 @@
         </div>
 
         <div>
-          <label for="filter-kondisi" class="block text-xs font-semibold text-slate-600 mb-1">Kondisi</label>
-          <select id="filter-kondisi" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600">
-            <option value="">Semua Kondisi</option>
-            <option value="Baik">Memiliki Unit Baik</option>
-            <option value="Cukup">Memiliki Unit Cukup</option>
-            <option value="Rusak">Memiliki Unit Rusak</option>
-          </select>
+          <span class="block text-xs font-semibold text-slate-600 mb-1">Kondisi</span>
+          <div id="filter-kondisi-group" class="flex items-center justify-between gap-2 px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white">
+            <label class="inline-flex items-center gap-1.5 cursor-pointer text-slate-700 font-medium">
+              <input type="checkbox" value="Baik" class="chk-filter-kondisi rounded text-emerald-700 focus:ring-emerald-600">
+              <span>Baik</span>
+            </label>
+            <label class="inline-flex items-center gap-1.5 cursor-pointer text-slate-700 font-medium">
+              <input type="checkbox" value="Cukup" class="chk-filter-kondisi rounded text-amber-600 focus:ring-amber-600">
+              <span>Cukup</span>
+            </label>
+            <label class="inline-flex items-center gap-1.5 cursor-pointer text-slate-700 font-medium">
+              <input type="checkbox" value="Rusak" class="chk-filter-kondisi rounded text-red-600 focus:ring-red-600">
+              <span>Rusak</span>
+            </label>
+          </div>
         </div>
 
         <div>
@@ -119,11 +127,6 @@
               <option value="" selected>Semua</option>
               <option value="TERSEDIA">Tersedia</option>
               <option value="DIPINJAM">Dipinjam</option>
-            </select>
-              <option value="">Semua Status</option>
-              <option value="TERSEDIA">Tersedia di Rak</option>
-              <option value="DIPINJAM">Ada Dipinjam</option>
-              <option value="HABIS">Stok Rak Kosong (0)</option>
             </select>
             <button
               type="button"
