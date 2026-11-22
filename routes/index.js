@@ -7,6 +7,7 @@ const { protectPage, redirectIfAuthenticated } = require('../middlewares/authMid
 const authRoutes = require('./authRoutes');
 const barangRoutes = require('./barangRoutes');
 const stokRoutes = require('./stokRoutes');
+const peminjamanRoutes = require('./peminjamanRoutes');
 const dashboardRoutes = require('./dashboardRoutes');
 const chatbotRoutes = require('./chatbotRoutes');
 
@@ -17,7 +18,7 @@ const router = express.Router();
 // =========================================================================
 router.get('/api/health', (req, res) => {
   sendSuccess(res, {
-    message: 'Fondasi Unified MVC Inventaris Olahraga v1.1 aktif',
+    message: 'Fondasi Unified MVC Inventaris Olahraga v1.2 (Experimental) aktif',
     data: {
       server: 'ONLINE',
       databaseConfigured: isDbConfigured(),
@@ -31,7 +32,7 @@ router.get('/api/health/test-error', (req, res, next) => {
 });
 
 // =========================================================================
-// 2. VIEW ROUTES (HALAMAN HTML)
+// 2. VIEW ROUTES (HALAMAN HTML — 3 MENU UTAMA)
 // =========================================================================
 router.get('/', (req, res) => {
   res.redirect('/login');
@@ -49,14 +50,6 @@ router.get('/inventaris', protectPage, (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'views', 'inventaris.html'));
 });
 
-router.get('/barang-masuk', protectPage, (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'views', 'barang-masuk.html'));
-});
-
-router.get('/barang-keluar', protectPage, (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'views', 'barang-keluar.html'));
-});
-
 router.get('/riwayat', protectPage, (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'views', 'riwayat.html'));
 });
@@ -67,9 +60,8 @@ router.get('/riwayat', protectPage, (req, res) => {
 router.use('/api/auth', authRoutes);
 router.use('/api/barang', barangRoutes);
 router.use('/api/stok', stokRoutes);
+router.use('/api/peminjaman', peminjamanRoutes);
 router.use('/api/dashboard', dashboardRoutes);
 router.use('/api/chatbot', chatbotRoutes);
-
-// Tahap 7 (C1 - Stock Opname)  : router.use('/api/opname', require('./opnameRoutes'));
 
 module.exports = router;

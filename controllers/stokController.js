@@ -8,18 +8,21 @@ const recordMasuk = asyncHandler(async (req, res) => {
 
   return sendSuccess(res, {
     statusCode: 201,
-    message: `Barang masuk berhasil dicatat. Stok "${result.barang.nama_barang}" bertambah menjadi ${result.barang.stok_sistem} ${result.barang.satuan}.`,
+    message: `Barang masuk berhasil dicatat. Total aset "${result.barang.nama_barang}" menjadi ${result.barang.stok_sistem} ${result.barang.satuan}.`,
     data: result
   });
 });
 
 const recordKeluar = asyncHandler(async (req, res) => {
-  const { barang_id, jumlah, keterangan } = req.body;
-  const result = await stokService.catatBarangKeluar({ barang_id, jumlah, keterangan }, req.user.id);
+  const { barang_id, jumlah, alasan_template, keterangan_lainnya, keterangan } = req.body;
+  const result = await stokService.catatBarangKeluar(
+    { barang_id, jumlah, alasan_template, keterangan_lainnya, keterangan },
+    req.user.id
+  );
 
   return sendSuccess(res, {
     statusCode: 201,
-    message: `Barang keluar berhasil dicatat. Sisa stok "${result.barang.nama_barang}" sekarang ${result.barang.stok_sistem} ${result.barang.satuan}.`,
+    message: `Barang keluar berhasil dicatat. Sisa stok tersedia "${result.barang.nama_barang}" sekarang ${result.barang.stok_tersedia} ${result.barang.satuan}.`,
     data: result
   });
 });
@@ -36,7 +39,7 @@ const getRiwayat = asyncHandler(async (req, res) => {
 
   return sendSuccess(res, {
     statusCode: 200,
-    message: 'Riwayat pergerakan stok berhasil diambil.',
+    message: 'Riwayat aktivitas dan mutasi stok berhasil diambil.',
     data: items,
     meta: summary
   });

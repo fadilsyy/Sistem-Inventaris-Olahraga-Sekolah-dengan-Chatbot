@@ -3,22 +3,24 @@ const asyncHandler = require('../utils/asyncHandler');
 const { sendSuccess } = require('../utils/responseHelper');
 
 const getAll = asyncHandler(async (req, res) => {
-  const { search, kategori, kondisi, ketersediaan } = req.query;
-  const items = await barangService.listBarang({ search, kategori, kondisi, ketersediaan });
+  const { search, kategori, kondisi, statusStok } = req.query;
+  const { items, summary } = await barangService.listBarang({
+    search,
+    kategori,
+    kondisi,
+    statusStok
+  });
 
   return sendSuccess(res, {
     statusCode: 200,
-    message: 'Daftar inventaris barang berhasil diambil.',
+    message: 'Daftar inventaris berhasil diambil.',
     data: items,
-    meta: {
-      total: items.length
-    }
+    meta: summary
   });
 });
 
 const getById = asyncHandler(async (req, res) => {
   const item = await barangService.getBarangById(req.params.id);
-
   return sendSuccess(res, {
     statusCode: 200,
     message: 'Detail barang berhasil diambil.',
@@ -27,43 +29,33 @@ const getById = asyncHandler(async (req, res) => {
 });
 
 const create = asyncHandler(async (req, res) => {
-  const createdItem = await barangService.createBarang(req.body);
-
+  const created = await barangService.createBarang(req.body, req.user.id);
   return sendSuccess(res, {
     statusCode: 201,
-    message: `Barang "${createdItem.nama_barang}" berhasil ditambahkan ke inventaris.`,
-    data: createdItem
+    message: `Barang "${created.nama_barang}" berhasil ditambahkan ke inventaris.`,
+    data: created
   });
 });
 
 const update = asyncHandler(async (req, res) => {
-  const updatedItem = await barangService.updateBarang(req.params.id, req.body);
-
+  const updated = await barangService.updateBarang(req.params.id, req.body, req.user.id);
   return sendSuccess(res, {
     statusCode: 200,
-    message: `Data barang "${updatedItem.nama_barang}" berhasil diperbarui.`,
-    data: updatedItem
+    message: `Data barang "${updated.nama_barang}" berhasil diperbarui.`,
+    data: updated
   });
 });
 
-const updateStatus = asyncHandler(async (req, res) => {
-  const { kondisi, ketersediaan } = req.body;
-  const updatedItem = await barangService.quickUpdateStatus(req.params.id, { kondisi, ketersediaan });
-
+const updateKondisi = asyncHandler(async (req, res) => {
+  const updated = await barangService.updateKondisiBarang(
+    req.params.id,
+    req.body.kondisi,
+    req.user.id
+  );
   return sendSuccess(res, {
     statusCode: 200,
-    message: `Status barang "${updatedItem.nama_barang}" berhasil diperbarui.`,
-    data: updatedItem
-  });
-});
-
-const remove = asyncHandler(async (req, res) => {
-  const archivedItem = await barangService.archiveBarang(req.params.id);
-
-  return sendSuccess(res, {
-    statusCode: 200,
-    message: `Barang "${archivedItem.nama_barang}" berhasil dihapus dari daftar aktif.`,
-    data: archivedItem
+    message: `Kondisi "${updated.nama_barang}" diubah menjadi ${updated.kondisi}.`,
+    data: updated
   });
 });
 
@@ -72,6 +64,5 @@ module.exports = {
   getById,
   create,
   update,
-  updateStatus,
-  remove
+  updateKondisi
 };

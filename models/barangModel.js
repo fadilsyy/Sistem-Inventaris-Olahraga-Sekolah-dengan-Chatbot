@@ -1,9 +1,21 @@
 const { getDbClient } = require('../config/db');
 
 const SELECT_COLUMNS =
-  'id, kode_barang, nama_barang, kategori, deskripsi, satuan, stok_sistem, kondisi, ketersediaan, is_archived, created_at, updated_at';
+  'id, kode_barang, nama_barang, kategori, deskripsi, satuan, stok_sistem, stok_dipinjam, kondisi, is_archived, created_at, updated_at';
 
-async function findAll({ search = '', kategori = '', kondisi = '', ketersediaan = '' } = {}) {
+function enrichBarang(row) {
+  if (!row) return null;
+  const stokSistem = Number(row.stok_sistem) || 0;
+  const stokDipinjam = Number(row.stok_dipinjam) || 0;
+  return {
+    ...row,
+    stok_sistem: stokSistem,
+    stok_dipinjam: stokDipinjam,
+    stok_tersedia: Math.max(0, stokSistem - stokDipinjam)
+  };
+}
+
+async function findAll({ search = '', kategori = '', kondisi = '', statusStok = '' } = {}) {
   const supabase = getDbClient();
 
   let query = supabase
@@ -20,21 +32,30 @@ async function findAll({ search = '', kategori = '', kondisi = '', ketersediaan 
     query = query.eq('kondisi', kondisi);
   }
 
-  if (ketersediaan) {
-    query = query.eq('ketersediaan', ketersediaan);
-  }
-
-  if (search) {
-    // Bersihkan karakter koma/kurung agar sintaks filter .or() PostgREST tetap aman
-    const sanitized = search.replace(/[,()]/g, ' ').trim();
-    if (sanitized) {
-      query = query.or(`nama_barang.ilike.%${sanitized}%,kode_barang.ilike.%${sanitized}%`);
-    }
-  }
-
   const { data, error } = await query;
   if (error) throw error;
-  return data || [];
+
+  let items = (data || []).map(enrichBarang);
+
+  if (search) {
+    const kw = search.toLowerCase();
+    items = items.filter(
+      (b) =>
+        b.nama_barang.toLowerCase().includes(kw) ||
+        b.kode_barang.toLowerCase().includes(kw) ||
+        (b.deskripsi && b.deskripsi.toLowerCase().includes(kw))
+    );
+  }
+
+  if (statusStok === 'TERSEDIA') {
+    items = items.filter((b) => b.stok_tersedia > 0);
+  } else if (statusStok === 'DIPINJAM') {
+    items = items.filter((b) => b.stok_dipinjam > 0);
+  } else if (statusStok === 'HABIS') {
+    items = items.filter((b) => b.stok_tersedia === 0);
+  }
+
+  return items;
 }
 
 async function findById(id) {
@@ -47,39 +68,57 @@ async function findById(id) {
     .maybeSingle();
 
   if (error) throw error;
-  return data;
+  return enrichBarang(data);
 }
 
 async function findByKode(kodeBarang) {
   const supabase = getDbClient();
   const { data, error } = await supabase
     .from('barang')
-    .select('id, kode_barang, is_archived')
-    .eq('kode_barang', kodeBarang)
+    .select(SELECT_COLUMNS)
+    .ilike('kode_barang', kodeBarang)
+    .eq('is_archived', false)
     .maybeSingle();
 
   if (error) throw error;
-  return data;
+  return enrichBarang(data);
 }
 
-async function create(payload) {
+async function create({ kode_barang, nama_barang, kategori, deskripsi, satuan, stok_sistem, kondisi }) {
   const supabase = getDbClient();
   const { data, error } = await supabase
     .from('barang')
-    .insert([payload])
+    .insert([
+      {
+        kode_barang,
+        nama_barang,
+        kategori,
+        deskripsi: deskripsi || null,
+        satuan,
+        stok_sistem,
+        stok_dipinjam: 0,
+        kondisi
+      }
+    ])
     .select(SELECT_COLUMNS)
     .single();
 
   if (error) throw error;
-  return data;
+  return enrichBarang(data);
 }
 
-async function update(id, payload) {
+async function update(id, { kode_barang, nama_barang, kategori, deskripsi, satuan, stok_sistem, kondisi }) {
   const supabase = getDbClient();
   const { data, error } = await supabase
     .from('barang')
     .update({
-      ...payload,
+      kode_barang,
+      nama_barang,
+      kategori,
+      deskripsi: deskripsi || null,
+      satuan,
+      stok_sistem,
+      kondisi,
       updated_at: new Date().toISOString()
     })
     .eq('id', id)
@@ -88,24 +127,24 @@ async function update(id, payload) {
     .single();
 
   if (error) throw error;
-  return data;
+  return enrichBarang(data);
 }
 
-async function archive(id) {
+async function updateKondisi(id, kondisi) {
   const supabase = getDbClient();
   const { data, error } = await supabase
     .from('barang')
     .update({
-      is_archived: true,
+      kondisi,
       updated_at: new Date().toISOString()
     })
     .eq('id', id)
     .eq('is_archived', false)
-    .select('id, kode_barang, nama_barang')
+    .select(SELECT_COLUMNS)
     .single();
 
   if (error) throw error;
-  return data;
+  return enrichBarang(data);
 }
 
 module.exports = {
@@ -114,5 +153,5 @@ module.exports = {
   findByKode,
   create,
   update,
-  archive
+  updateKondisi
 };

@@ -10,7 +10,6 @@ router.get('/', barangController.getAll);
 router.get('/:id', barangController.getById);
 router.post('/', barangController.create);
 router.put('/:id', barangController.update);
-router.patch('/:id/status', barangController.updateStatus);
-router.delete('/:id', barangController.remove);
+router.patch('/:id/kondisi', barangController.updateKondisi);
 
 module.exports = router;

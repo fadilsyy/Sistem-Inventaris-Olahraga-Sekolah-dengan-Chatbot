@@ -11,7 +11,25 @@ async function updateBarangStockOptimistic(barangId, expectedOldStock, newStock)
     .eq('id', barangId)
     .eq('stok_sistem', expectedOldStock)
     .eq('is_archived', false)
-    .select('id, kode_barang, nama_barang, kategori, satuan, stok_sistem')
+    .select('id, kode_barang, nama_barang, kategori, satuan, stok_sistem, stok_dipinjam')
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
+async function updateBarangDipinjamOptimistic(barangId, expectedOldDipinjam, newDipinjam) {
+  const supabase = getDbClient();
+  const { data, error } = await supabase
+    .from('barang')
+    .update({
+      stok_dipinjam: newDipinjam,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', barangId)
+    .eq('stok_dipinjam', expectedOldDipinjam)
+    .eq('is_archived', false)
+    .select('id, kode_barang, nama_barang, kategori, satuan, stok_sistem, stok_dipinjam')
     .maybeSingle();
 
   if (error) throw error;
@@ -58,7 +76,7 @@ async function createMovement({
   return data;
 }
 
-async function findAllMovements({ tipe = '', barang_id = '', startDate = '', endDate = '', limit = 200 } = {}) {
+async function findAllMovements({ tipe = '', barang_id = '', startDate = '', endDate = '', limit = 250 } = {}) {
   const supabase = getDbClient();
 
   let query = supabase
@@ -100,6 +118,7 @@ async function findAllMovements({ tipe = '', barang_id = '', startDate = '', end
 
 module.exports = {
   updateBarangStockOptimistic,
+  updateBarangDipinjamOptimistic,
   createMovement,
   findAllMovements
 };
