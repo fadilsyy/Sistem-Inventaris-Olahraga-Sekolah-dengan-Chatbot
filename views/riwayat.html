@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Riwayat Pergerakan Stok — Gudang Olahraga Sekolah</title>
+  <title>Riwayat Aktivitas &amp; Audit Stok — Gudang Olahraga Sekolah</title>
   <link href="/css/output.css" rel="stylesheet">
 </head>
 <body id="page-riwayat" class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
 
-  <!-- Top Navigation Bar -->
+  <!-- Top Navigation Bar (3 Menu Utama) -->
   <header class="bg-blue-900 text-white shadow-sm sticky top-0 z-30">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-6">
@@ -16,11 +16,9 @@
           <span class="bg-blue-700 px-2.5 py-1 rounded-lg text-xs font-extrabold uppercase">INV-OR</span>
           <span>Gudang Olahraga</span>
         </a>
-        <nav class="hidden md:flex items-center gap-1 text-sm">
+        <nav class="flex items-center gap-1 text-xs sm:text-sm">
           <a href="/dashboard" class="px-3 py-2 rounded-lg text-blue-200 hover:bg-blue-800 hover:text-white transition">Dashboard</a>
           <a href="/inventaris" class="px-3 py-2 rounded-lg text-blue-200 hover:bg-blue-800 hover:text-white transition">Data Inventaris</a>
-          <a href="/barang-masuk" class="px-3 py-2 rounded-lg text-blue-200 hover:bg-blue-800 hover:text-white transition">Barang Masuk</a>
-          <a href="/barang-keluar" class="px-3 py-2 rounded-lg text-blue-200 hover:bg-blue-800 hover:text-white transition">Barang Keluar</a>
           <a href="/riwayat" class="px-3 py-2 rounded-lg bg-blue-800 text-white font-semibold">Riwayat Stok</a>
         </nav>
       </div>
@@ -37,23 +35,18 @@
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-bold text-slate-900">Riwayat Pergerakan Stok (Audit Log)</h1>
-        <p class="text-sm text-slate-600 mt-0.5">Rekam jejak kronologis seluruh transaksi barang masuk, barang keluar, dan penyesuaian stok.</p>
+        <h1 class="text-2xl font-bold text-slate-900">Riwayat Aktivitas &amp; Audit Stok</h1>
+        <p class="text-sm text-slate-600 mt-0.5">Rekam jejak menyeluruh seluruh mutasi stok, sirkulasi peminjaman, penambahan item, dan perubahan data inventaris.</p>
       </div>
-      <div class="flex items-center gap-2">
-        <a href="/barang-masuk" class="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold transition">
-          + Barang Masuk
-        </a>
-        <a href="/barang-keluar" class="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold transition">
-          - Barang Keluar
-        </a>
-      </div>
+      <a href="/inventaris" class="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white text-xs font-semibold shadow-sm transition">
+        Kelola di Data Inventaris &rarr;
+      </a>
     </div>
 
-    <!-- Kartu Ringkasan Riwayat -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <!-- 4 Kartu Ringkasan Audit -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-        <p class="text-xs font-medium text-slate-500">Total Log Transaksi</p>
+        <p class="text-xs font-medium text-slate-500">Total Log Aktivitas</p>
         <p id="stat-total-trx" class="text-2xl font-bold text-slate-900 mt-1">0</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
@@ -62,29 +55,38 @@
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
         <p class="text-xs font-medium text-slate-500">Total Unit Keluar (OUT)</p>
-        <p id="stat-total-out" class="text-2xl font-bold text-amber-700 mt-1">-0</p>
+        <p id="stat-total-out" class="text-2xl font-bold text-red-700 mt-1">-0</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-xs font-medium text-slate-500">Total Unit Dipinjam</p>
+        <p id="stat-total-pinjam" class="text-2xl font-bold text-amber-700 mt-1">0</p>
       </div>
     </div>
 
-    <!-- Filter Riwayat -->
+    <!-- Filter Audit Log -->
     <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         <div class="lg:col-span-2">
-          <label for="riwayat-search" class="block text-xs font-semibold text-slate-600 mb-1">Cari Barang / Keterangan / Petugas</label>
+          <label for="riwayat-search" class="block text-xs font-semibold text-slate-600 mb-1">Cari Barang / Alasan / Peminjam / Petugas</label>
           <input
             type="text"
             id="riwayat-search"
-            placeholder="Ketik nama barang, kode, atau nama peminjam..."
+            placeholder="Ketik nama barang, kode, alasan, atau petugas..."
             class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
           >
         </div>
 
         <div>
-          <label for="riwayat-tipe" class="block text-xs font-semibold text-slate-600 mb-1">Jenis Transaksi</label>
+          <label for="riwayat-tipe" class="block text-xs font-semibold text-slate-600 mb-1">Jenis Aktivitas</label>
           <select id="riwayat-tipe" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600">
-            <option value="">Semua Transaksi</option>
+            <option value="">Semua Aktivitas</option>
             <option value="IN">Barang Masuk (IN)</option>
             <option value="OUT">Barang Keluar (OUT)</option>
+            <option value="PINJAM">Peminjaman (PINJAM)</option>
+            <option value="KEMBALI">Pengembalian (KEMBALI)</option>
+            <option value="CREATE">Barang Baru (CREATE)</option>
+            <option value="UPDATE">Edit / Koreksi Data (UPDATE)</option>
+            <option value="STATUS">Ubah Kondisi (STATUS)</option>
           </select>
         </div>
 
@@ -116,17 +118,17 @@
           <thead>
             <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold uppercase text-slate-600">
               <th class="py-3.5 px-4">Waktu</th>
-              <th class="py-3.5 px-4">Tipe</th>
+              <th class="py-3.5 px-4">Aktivitas</th>
               <th class="py-3.5 px-4">Kode &amp; Nama Barang</th>
-              <th class="py-3.5 px-4 text-right">Jumlah</th>
+              <th class="py-3.5 px-4 text-right">Kuantitas</th>
               <th class="py-3.5 px-4 text-right">Stok Sebelum &rarr; Sesudah</th>
-              <th class="py-3.5 px-4">Keterangan</th>
+              <th class="py-3.5 px-4">Rincian / Alasan</th>
               <th class="py-3.5 px-4">Petugas</th>
             </tr>
           </thead>
           <tbody id="riwayat-table-body" class="divide-y divide-slate-200 text-sm">
             <tr>
-              <td colspan="7" class="py-8 text-center text-slate-500">Memuat riwayat pergerakan stok...</td>
+              <td colspan="7" class="py-8 text-center text-slate-500">Memuat riwayat aktivitas inventaris...</td>
             </tr>
           </tbody>
         </table>
@@ -136,7 +138,7 @@
 
   <script src="/js/api.js"></script>
   <script src="/js/auth.js"></script>
-  <script src="/js/stok.js"></script>
+  <script src="/js/riwayat.js"></script>
   <script src="/js/chatbot.js"></script>
 </body>
 </html>

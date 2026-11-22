@@ -5,12 +5,25 @@ const AppError = require('../utils/AppError');
 const VALID_KATEGORI = ['Sport', 'Non-Sport'];
 const VALID_KONDISI = ['Baik', 'Cukup', 'Rusak'];
 
-function validatePayload({ kode_barang, nama_barang, kategori, satuan, stok_sistem, kondisi, deskripsi }) {
+const KONDISI_FIELD_MAP = {
+  Baik: 'stok_baik',
+  Cukup: 'stok_cukup',
+  Rusak: 'stok_rusak'
+};
+
+function parseNonNegativeInt(value, label) {
+  const num = Number(value);
+  if (!Number.isInteger(num) || num < 0) {
+    throw new AppError(`${label} harus berupa bilangan bulat minimal 0.`, 400);
+  }
+  return num;
+}
+
+function validateBaseFields({ kode_barang, nama_barang, kategori, satuan, deskripsi }) {
   const cleanKode = kode_barang ? String(kode_barang).trim().toUpperCase() : '';
   const cleanNama = nama_barang ? String(nama_barang).trim() : '';
   const cleanKategori = kategori ? String(kategori).trim() : '';
   const cleanSatuan = satuan ? String(satuan).trim() : '';
-  const cleanKondisi = kondisi ? String(kondisi).trim() : 'Baik';
   const cleanDeskripsi = deskripsi ? String(deskripsi).trim() : '';
 
   if (!cleanKode || !cleanNama || !cleanSatuan) {
@@ -21,22 +34,11 @@ function validatePayload({ kode_barang, nama_barang, kategori, satuan, stok_sist
     throw new AppError('Kategori harus bernilai Sport atau Non-Sport.', 400);
   }
 
-  if (!VALID_KONDISI.includes(cleanKondisi)) {
-    throw new AppError('Kondisi barang tidak valid (pilihan: Baik, Cukup, Rusak).', 400);
-  }
-
-  const stokNum = Number(stok_sistem);
-  if (!Number.isInteger(stokNum) || stokNum < 0) {
-    throw new AppError('Jumlah stok sistem harus berupa bilangan bulat minimal 0.', 400);
-  }
-
   return {
     kode_barang: cleanKode,
     nama_barang: cleanNama,
     kategori: cleanKategori,
     satuan: cleanSatuan,
-    stok_sistem: stokNum,
-    kondisi: cleanKondisi,
     deskripsi: cleanDeskripsi
   };
 }
@@ -50,7 +52,9 @@ async function listBarang(filters = {}) {
       acc.total_unit_aset += item.stok_sistem;
       acc.total_unit_tersedia += item.stok_tersedia;
       acc.total_unit_dipinjam += item.stok_dipinjam;
-      if (item.kondisi === 'Rusak') acc.total_rusak += 1;
+      acc.total_unit_baik += item.stok_baik;
+      acc.total_unit_cukup += item.stok_cukup;
+      acc.total_unit_rusak += item.stok_rusak;
       return acc;
     },
     {
@@ -58,7 +62,9 @@ async function listBarang(filters = {}) {
       total_unit_aset: 0,
       total_unit_tersedia: 0,
       total_unit_dipinjam: 0,
-      total_rusak: 0
+      total_unit_baik: 0,
+      total_unit_cukup: 0,
+      total_unit_rusak: 0
     }
   );
 
@@ -74,14 +80,18 @@ async function getBarangById(id) {
 }
 
 async function createBarang(payload, userId) {
-  const clean = validatePayload(payload);
+  const base = validateBaseFields(payload);
+  const stokAwal = parseNonNegativeInt(payload.stok_sistem, 'Stok awal');
 
-  const existingKode = await barangModel.findByKode(clean.kode_barang);
+  const existingKode = await barangModel.findByKode(base.kode_barang);
   if (existingKode) {
-    throw new AppError(`Kode barang "${clean.kode_barang}" sudah digunakan oleh "${existingKode.nama_barang}".`, 409);
+    throw new AppError(`Kode barang "${base.kode_barang}" sudah digunakan oleh "${existingKode.nama_barang}".`, 409);
   }
 
-  const created = await barangModel.create(clean);
+  const created = await barangModel.create({
+    ...base,
+    stok_sistem: stokAwal
+  });
 
   await stokModel.createMovement({
     barang_id: created.id,
@@ -90,7 +100,7 @@ async function createBarang(payload, userId) {
     jumlah: created.stok_sistem,
     stok_sebelum: 0,
     stok_sesudah: created.stok_sistem,
-    keterangan: `Pendaftaran item baru (${created.kategori}, kondisi ${created.kondisi}, stok awal ${created.stok_sistem} ${created.satuan})`
+    keterangan: `Pendaftaran item baru (${created.kategori}, stok awal ${created.stok_sistem} ${created.satuan} kondisi Baik)`
   });
 
   return created;
@@ -98,25 +108,34 @@ async function createBarang(payload, userId) {
 
 async function updateBarang(id, payload, userId) {
   const existing = await getBarangById(id);
-  const clean = validatePayload(payload);
+  const base = validateBaseFields(payload);
 
-  if (clean.stok_sistem < existing.stok_dipinjam) {
+  const stokBaik = parseNonNegativeInt(payload.stok_baik, 'Jumlah unit Baik');
+  const stokCukup = parseNonNegativeInt(payload.stok_cukup, 'Jumlah unit Cukup');
+  const stokRusak = parseNonNegativeInt(payload.stok_rusak, 'Jumlah unit Rusak');
+  const totalBaru = stokBaik + stokCukup + stokRusak;
+
+  if (totalBaru < existing.stok_dipinjam) {
     throw new AppError(
-      `Total stok sistem (${clean.stok_sistem}) tidak boleh lebih kecil dari jumlah unit yang sedang dipinjam (${existing.stok_dipinjam} ${existing.satuan}).`,
+      `Total stok aset (${totalBaru}) tidak boleh lebih kecil dari jumlah unit yang sedang dipinjam (${existing.stok_dipinjam} ${existing.satuan}).`,
       400
     );
   }
 
-  if (clean.kode_barang !== existing.kode_barang) {
-    const duplicateKode = await barangModel.findByKode(clean.kode_barang);
+  if (base.kode_barang !== existing.kode_barang) {
+    const duplicateKode = await barangModel.findByKode(base.kode_barang);
     if (duplicateKode && duplicateKode.id !== id) {
-      throw new AppError(`Kode barang "${clean.kode_barang}" sudah dipakai barang lain.`, 409);
+      throw new AppError(`Kode barang "${base.kode_barang}" sudah dipakai barang lain.`, 409);
     }
   }
 
-  const updated = await barangModel.update(id, clean);
+  const updated = await barangModel.update(id, {
+    ...base,
+    stok_baik: stokBaik,
+    stok_cukup: stokCukup,
+    stok_rusak: stokRusak
+  });
 
-  // Rangkum atribut yang berubah untuk audit log
   const perubahan = [];
   if (existing.kode_barang !== updated.kode_barang) {
     perubahan.push(`Kode: ${existing.kode_barang} → ${updated.kode_barang}`);
@@ -127,11 +146,14 @@ async function updateBarang(id, payload, userId) {
   if (existing.kategori !== updated.kategori) {
     perubahan.push(`Kategori: ${existing.kategori} → ${updated.kategori}`);
   }
-  if (existing.kondisi !== updated.kondisi) {
-    perubahan.push(`Kondisi: ${existing.kondisi} → ${updated.kondisi}`);
-  }
-  if (existing.stok_sistem !== updated.stok_sistem) {
-    perubahan.push(`Koreksi Total Stok: ${existing.stok_sistem} → ${updated.stok_sistem} ${updated.satuan}`);
+  if (
+    existing.stok_baik !== updated.stok_baik ||
+    existing.stok_cukup !== updated.stok_cukup ||
+    existing.stok_rusak !== updated.stok_rusak
+  ) {
+    perubahan.push(
+      `Komposisi Kondisi: Baik ${existing.stok_baik}→${updated.stok_baik}, Cukup ${existing.stok_cukup}→${updated.stok_cukup}, Rusak ${existing.stok_rusak}→${updated.stok_rusak}`
+    );
   }
   if ((existing.deskripsi || '') !== (updated.deskripsi || '')) {
     perubahan.push('Deskripsi diperbarui');
@@ -156,28 +178,67 @@ async function updateBarang(id, payload, userId) {
   return updated;
 }
 
-async function updateKondisiBarang(id, kondisi, userId) {
+async function ubahKondisiBatch(id, { dari_kondisi, ke_kondisi, jumlah, keterangan }, userId) {
   const existing = await getBarangById(id);
-  const cleanKondisi = kondisi ? String(kondisi).trim() : '';
 
-  if (!VALID_KONDISI.includes(cleanKondisi)) {
-    throw new AppError('Kondisi fisik tidak valid (pilihan: Baik, Cukup, Rusak).', 400);
+  const dari = dari_kondisi ? String(dari_kondisi).trim() : '';
+  const ke = ke_kondisi ? String(ke_kondisi).trim() : '';
+
+  if (!VALID_KONDISI.includes(dari) || !VALID_KONDISI.includes(ke)) {
+    throw new AppError('Pilihan kondisi asal atau tujuan tidak valid (Baik, Cukup, Rusak).', 400);
   }
 
-  if (existing.kondisi === cleanKondisi) {
-    return existing;
+  if (dari === ke) {
+    throw new AppError('Kondisi tujuan harus berbeda dari kondisi asal.', 400);
   }
 
-  const updated = await barangModel.updateKondisi(id, cleanKondisi);
+  const qty = Number(jumlah);
+  if (!Number.isInteger(qty) || qty <= 0) {
+    throw new AppError('Jumlah unit yang diubah kondisinya harus bilangan bulat minimal 1.', 400);
+  }
+
+  const fieldDari = KONDISI_FIELD_MAP[dari];
+  const fieldKe = KONDISI_FIELD_MAP[ke];
+  const stokAsalTersedia = existing[fieldDari] || 0;
+
+  if (qty > stokAsalTersedia) {
+    throw new AppError(
+      `Jumlah unit kondisi "${dari}" hanya tersedia ${stokAsalTersedia} ${existing.satuan}.`,
+      400
+    );
+  }
+
+  const cleanKet = keterangan ? String(keterangan).trim() : '';
+  if ((ke === 'Cukup' || ke === 'Rusak') && !cleanKet) {
+    throw new AppError(
+      `Keterangan alasan/kerusakan wajib diisi saat mengubah kondisi unit menjadi "${ke}".`,
+      400
+    );
+  }
+
+  const nextCounts = {
+    stok_baik: existing.stok_baik,
+    stok_cukup: existing.stok_cukup,
+    stok_rusak: existing.stok_rusak
+  };
+  nextCounts[fieldDari] -= qty;
+  nextCounts[fieldKe] += qty;
+
+  const updated = await barangModel.updateKondisiCounts(id, nextCounts);
+
+  const catatanAudit =
+    ke === 'Baik'
+      ? `Pemulihan kondisi ${qty} ${existing.satuan} (${dari} → Baik)`
+      : `Perubahan kondisi ${qty} ${existing.satuan} (${dari} → ${ke}): ${cleanKet}`;
 
   await stokModel.createMovement({
     barang_id: updated.id,
     user_id: userId,
     tipe: 'STATUS',
-    jumlah: 0,
+    jumlah: qty,
     stok_sebelum: existing.stok_sistem,
     stok_sesudah: updated.stok_sistem,
-    keterangan: `Perubahan kondisi fisik: ${existing.kondisi} → ${cleanKondisi}`
+    keterangan: catatanAudit
   });
 
   return updated;
@@ -188,5 +249,5 @@ module.exports = {
   getBarangById,
   createBarang,
   updateBarang,
-  updateKondisiBarang
+  ubahKondisiBatch
 };

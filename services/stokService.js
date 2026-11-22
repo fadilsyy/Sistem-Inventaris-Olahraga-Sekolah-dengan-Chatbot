@@ -12,6 +12,15 @@ function parsePositiveInteger(value, fieldLabel) {
   return num;
 }
 
+function parseNonNegativeInteger(value, fieldLabel) {
+  if (value === undefined || value === null || value === '') return 0;
+  const num = Number(value);
+  if (!Number.isInteger(num) || num < 0) {
+    throw new AppError(`${fieldLabel} harus berupa bilangan bulat minimal 0.`, 400);
+  }
+  return num;
+}
+
 function buildAlasanKeluar({ alasan_template, keterangan_lainnya, keterangan }) {
   const template = alasan_template ? String(alasan_template).trim() : '';
   const custom = keterangan_lainnya ? String(keterangan_lainnya).trim() : '';
@@ -42,6 +51,13 @@ async function catatBarangMasuk({ barang_id, jumlah, keterangan }, userId) {
   const qty = parsePositiveInteger(jumlah, 'Jumlah barang masuk');
   const cleanKeterangan = keterangan ? String(keterangan).trim() : '';
 
+  if (!cleanKeterangan) {
+    throw new AppError(
+      'Sumber atau keterangan barang masuk wajib diisi (misal: pengadaan baru, donasi, atau hibah).',
+      400
+    );
+  }
+
   const barang = await barangModel.findById(barang_id);
   if (!barang) {
     throw new AppError('Barang inventaris tidak ditemukan.', 404);
@@ -50,10 +66,18 @@ async function catatBarangMasuk({ barang_id, jumlah, keterangan }, userId) {
   const stokSebelum = barang.stok_sistem;
   const stokSesudah = stokSebelum + qty;
 
+  // Unit masuk baru otomatis tercatat pada kondisi Baik
+  const nextCounts = {
+    stok_baik: (barang.stok_baik || 0) + qty,
+    stok_cukup: barang.stok_cukup || 0,
+    stok_rusak: barang.stok_rusak || 0
+  };
+
   const updatedBarang = await stokModel.updateBarangStockOptimistic(
     barang.id,
     stokSebelum,
-    stokSesudah
+    stokSesudah,
+    nextCounts
   );
 
   if (!updatedBarang) {
@@ -71,7 +95,7 @@ async function catatBarangMasuk({ barang_id, jumlah, keterangan }, userId) {
       jumlah: qty,
       stok_sebelum: stokSebelum,
       stok_sesudah: stokSesudah,
-      keterangan: cleanKeterangan || 'Penambahan stok masuk gudang'
+      keterangan: `${cleanKeterangan} (+${qty} unit Baik)`
     });
 
     return {
@@ -82,25 +106,69 @@ async function catatBarangMasuk({ barang_id, jumlah, keterangan }, userId) {
       }
     };
   } catch (err) {
-    await stokModel.updateBarangStockOptimistic(barang.id, stokSesudah, stokSebelum).catch(() => {});
+    await stokModel
+      .updateBarangStockOptimistic(barang.id, stokSesudah, stokSebelum, {
+        stok_baik: barang.stok_baik || 0,
+        stok_cukup: barang.stok_cukup || 0,
+        stok_rusak: barang.stok_rusak || 0
+      })
+      .catch(() => {});
     throw err;
   }
 }
 
 async function catatBarangKeluar(
-  { barang_id, jumlah, alasan_template, keterangan_lainnya, keterangan },
+  {
+    barang_id,
+    jumlah_baik,
+    jumlah_cukup,
+    jumlah_rusak,
+    alasan_template,
+    keterangan_lainnya,
+    keterangan
+  },
   userId
 ) {
   if (!barang_id) {
     throw new AppError('Silakan pilih barang inventaris terlebih dahulu.', 400);
   }
 
-  const qty = parsePositiveInteger(jumlah, 'Jumlah barang keluar');
-  const cleanKeterangan = buildAlasanKeluar({ alasan_template, keterangan_lainnya, keterangan });
+  const qBaik = parseNonNegativeInteger(jumlah_baik, 'Jumlah unit kondisi Baik');
+  const qCukup = parseNonNegativeInteger(jumlah_cukup, 'Jumlah unit kondisi Cukup');
+  const qRusak = parseNonNegativeInteger(jumlah_rusak, 'Jumlah unit kondisi Rusak');
+  const qty = qBaik + qCukup + qRusak;
+
+  if (qty <= 0) {
+    throw new AppError(
+      'Centang minimal satu kondisi barang keluar dan masukkan jumlah unit minimal 1.',
+      400
+    );
+  }
+
+  const cleanAlasan = buildAlasanKeluar({ alasan_template, keterangan_lainnya, keterangan });
 
   const barang = await barangModel.findById(barang_id);
   if (!barang) {
     throw new AppError('Barang inventaris tidak ditemukan.', 404);
+  }
+
+  if (qBaik > (barang.stok_baik || 0)) {
+    throw new AppError(
+      `Unit keluar kondisi Baik (${qBaik}) melebihi stok Baik yang ada (${barang.stok_baik} ${barang.satuan}).`,
+      400
+    );
+  }
+  if (qCukup > (barang.stok_cukup || 0)) {
+    throw new AppError(
+      `Unit keluar kondisi Cukup (${qCukup}) melebihi stok Cukup yang ada (${barang.stok_cukup} ${barang.satuan}).`,
+      400
+    );
+  }
+  if (qRusak > (barang.stok_rusak || 0)) {
+    throw new AppError(
+      `Unit keluar kondisi Rusak (${qRusak}) melebihi stok Rusak yang ada (${barang.stok_rusak} ${barang.satuan}).`,
+      400
+    );
   }
 
   const dipinjamSaatIni = barang.stok_dipinjam || 0;
@@ -108,7 +176,7 @@ async function catatBarangKeluar(
 
   if (qty > tersediaDiRak) {
     throw new AppError(
-      `Stok tersedia di rak untuk "${barang.nama_barang}" tidak mencukupi. Tersedia di rak: ${tersediaDiRak} ${barang.satuan} (${dipinjamSaatIni} sedang dipinjam).`,
+      `Total unit keluar (${qty} ${barang.satuan}) melebihi stok tersedia di rak (${tersediaDiRak} ${barang.satuan}; ${dipinjamSaatIni} sedang dipinjam).`,
       400
     );
   }
@@ -116,10 +184,17 @@ async function catatBarangKeluar(
   const stokSebelum = barang.stok_sistem;
   const stokSesudah = stokSebelum - qty;
 
+  const nextCounts = {
+    stok_baik: (barang.stok_baik || 0) - qBaik,
+    stok_cukup: (barang.stok_cukup || 0) - qCukup,
+    stok_rusak: (barang.stok_rusak || 0) - qRusak
+  };
+
   const updatedBarang = await stokModel.updateBarangStockOptimistic(
     barang.id,
     stokSebelum,
-    stokSesudah
+    stokSesudah,
+    nextCounts
   );
 
   if (!updatedBarang) {
@@ -129,6 +204,13 @@ async function catatBarangKeluar(
     );
   }
 
+  const rincianKondisi = [];
+  if (qRusak > 0) rincianKondisi.push(`${qRusak} Rusak`);
+  if (qCukup > 0) rincianKondisi.push(`${qCukup} Cukup`);
+  if (qBaik > 0) rincianKondisi.push(`${qBaik} Baik`);
+
+  const catatanAudit = `${cleanAlasan} [Kondisi keluar: ${rincianKondisi.join(', ')}]`;
+
   try {
     const movement = await stokModel.createMovement({
       barang_id: barang.id,
@@ -137,7 +219,7 @@ async function catatBarangKeluar(
       jumlah: qty,
       stok_sebelum: stokSebelum,
       stok_sesudah: stokSesudah,
-      keterangan: cleanKeterangan
+      keterangan: catatanAudit
     });
 
     return {
@@ -148,7 +230,13 @@ async function catatBarangKeluar(
       }
     };
   } catch (err) {
-    await stokModel.updateBarangStockOptimistic(barang.id, stokSesudah, stokSebelum).catch(() => {});
+    await stokModel
+      .updateBarangStockOptimistic(barang.id, stokSesudah, stokSebelum, {
+        stok_baik: barang.stok_baik || 0,
+        stok_cukup: barang.stok_cukup || 0,
+        stok_rusak: barang.stok_rusak || 0
+      })
+      .catch(() => {});
     throw err;
   }
 }

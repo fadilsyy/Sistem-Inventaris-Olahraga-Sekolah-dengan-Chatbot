@@ -1,22 +1,19 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const currentUser = ApiClient.getUser();
   const navUserEl = document.getElementById('nav-user-name');
-  const welcomeUserEl = document.getElementById('welcome-user-name');
-  const dateEl = document.getElementById('dashboard-date');
-
-  if (currentUser) {
-    if (navUserEl) navUserEl.textContent = currentUser.nama_pengguna;
-    if (welcomeUserEl) welcomeUserEl.textContent = currentUser.nama_pengguna;
+  if (currentUser && navUserEl) {
+    navUserEl.textContent = currentUser.nama_pengguna;
   }
 
-  if (dateEl) {
-    dateEl.textContent = new Intl.DateTimeFormat('id-ID', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    }).format(new Date());
-  }
+  const TIPE_BADGES = {
+    IN: 'bg-emerald-100 text-emerald-800',
+    OUT: 'bg-red-100 text-red-800',
+    PINJAM: 'bg-amber-100 text-amber-800',
+    KEMBALI: 'bg-teal-100 text-teal-800',
+    CREATE: 'bg-blue-100 text-blue-800',
+    UPDATE: 'bg-indigo-100 text-indigo-800',
+    STATUS: 'bg-slate-200 text-slate-800'
+  };
 
   function escapeHtml(str) {
     if (str === null || str === undefined) return '';
@@ -28,187 +25,132 @@ document.addEventListener('DOMContentLoaded', () => {
       .replace(/'/g, '&#039;');
   }
 
-  function formatTanggalWIB(isoString) {
+  function formatWaktuWIB(isoString) {
     if (!isoString) return '-';
     return new Intl.DateTimeFormat('id-ID', {
       day: '2-digit',
       month: 'short',
-      year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     }).format(new Date(isoString));
   }
 
-  function renderWatchlist(items) {
-    const tbody = document.getElementById('watchlist-table-body');
-    if (!tbody) return;
+  try {
+    const res = await ApiClient.request('/api/dashboard');
+    const { kpi, watchlist, recent_movements } = res.data;
 
-    if (!items || items.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="4" class="py-10 text-center text-slate-500">
-            Semua perlengkapan dalam kondisi baik dan stok aman.
-          </td>
-        </tr>
-      `;
-      return;
+    // Render KPI
+    document.getElementById('kpi-total-jenis').textContent = kpi.total_jenis;
+    document.getElementById('kpi-kategori-sub').textContent = `${kpi.jenis_sport} Sport • ${kpi.jenis_nonsport} Non-Sport`;
+    document.getElementById('kpi-total-aset').textContent = kpi.total_unit_aset;
+    document.getElementById('kpi-total-tersedia').textContent = kpi.total_unit_tersedia;
+    document.getElementById('kpi-total-dipinjam').textContent = kpi.total_unit_dipinjam;
+    document.getElementById('kpi-sesi-pinjam').textContent = `${kpi.total_sesi_pinjam_aktif} sesi peminjaman aktif`;
+    document.getElementById('kpi-unit-baik').textContent = kpi.total_unit_baik;
+    document.getElementById('kpi-unit-cukup').textContent = kpi.total_unit_cukup;
+    document.getElementById('kpi-unit-rusak').textContent = kpi.total_unit_rusak;
+
+    // Watchlist 1: Peminjaman Aktif
+    const pinjamContainer = document.getElementById('list-peminjaman-aktif');
+    if (!watchlist.peminjaman_aktif.length) {
+      pinjamContainer.innerHTML =
+        '<p class="text-slate-500 py-4 text-center border border-dashed border-slate-200 rounded-xl">Tidak ada unit yang sedang dipinjam.</p>';
+    } else {
+      pinjamContainer.innerHTML = watchlist.peminjaman_aktif
+        .slice(0, 5)
+        .map(
+          (t) => `
+            <div class="p-2.5 rounded-xl bg-amber-50/70 border border-amber-200 flex items-center justify-between gap-2">
+              <div>
+                <p class="font-bold text-slate-900">${escapeHtml(t.peminjam)}</p>
+                <p class="text-slate-600">${escapeHtml(t.barang?.nama_barang || 'Barang')} &bull; ${formatWaktuWIB(t.borrowed_at)}</p>
+              </div>
+              <span class="px-2 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 shrink-0">
+                ${t.jumlah} ${escapeHtml(t.barang?.satuan || 'unit')}
+              </span>
+            </div>
+          `
+        )
+        .join('');
     }
 
-    tbody.innerHTML = items
-      .map((item) => {
-        const badges = item.alasan
-          .map((reason) => {
-            let colorClass = 'bg-slate-100 text-slate-700';
-            if (reason.includes('Habis') || reason.includes('Rusak')) {
-              colorClass = 'bg-red-100 text-red-800';
-            } else if (reason.includes('Menipis') || reason.includes('Dipinjam')) {
-              colorClass = 'bg-amber-100 text-amber-800';
-            }
-            return `<span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${colorClass}">${escapeHtml(reason)}</span>`;
-          })
-          .join(' ');
-
-        const actionLink =
-          item.stok_sistem <= 2
-            ? `<a href="/barang-masuk" class="text-xs font-semibold text-emerald-700 hover:underline">+ Restock</a>`
-            : `<a href="/inventaris" class="text-xs font-semibold text-blue-700 hover:underline">Periksa</a>`;
-
-        return `
-          <tr class="hover:bg-slate-50/80 transition">
-            <td class="py-3 px-4">
-              <div class="font-semibold text-slate-900">${escapeHtml(item.nama_barang)}</div>
-              <div class="text-xs font-mono text-slate-500">${escapeHtml(item.kode_barang)} &bull; ${escapeHtml(item.kategori)}</div>
-            </td>
-            <td class="py-3 px-4 text-right font-bold text-slate-800 whitespace-nowrap">
-              ${item.stok_sistem} <span class="text-xs font-normal text-slate-500">${escapeHtml(item.satuan)}</span>
-            </td>
-            <td class="py-3 px-4">
-              <div class="flex flex-wrap gap-1">${badges}</div>
-            </td>
-            <td class="py-3 px-4 text-right whitespace-nowrap">
-              ${actionLink}
-            </td>
-          </tr>
-        `;
-      })
-      .join('');
-  }
-
-  function renderRecentMovements(rows) {
-    const tbody = document.getElementById('dashboard-recent-body');
-    if (!tbody) return;
-
-    if (!rows || rows.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="7" class="py-8 text-center text-slate-500">
-            Belum ada catatan pergerakan stok di gudang.
-          </td>
-        </tr>
-      `;
-      return;
+    // Watchlist 2: Stok Menipis
+    const menipisContainer = document.getElementById('list-stok-menipis');
+    if (!watchlist.stok_menipis.length) {
+      menipisContainer.innerHTML =
+        '<p class="text-slate-500 py-4 text-center border border-dashed border-slate-200 rounded-xl">Semua stok tersedia di rak aman (&gt; 2 unit).</p>';
+    } else {
+      menipisContainer.innerHTML = watchlist.stok_menipis
+        .slice(0, 5)
+        .map(
+          (b) => `
+            <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2">
+              <div>
+                <p class="font-bold text-slate-900">${escapeHtml(b.nama_barang)}</p>
+                <p class="text-slate-500 font-mono">${escapeHtml(b.kode_barang)} &bull; Dipinjam: ${b.stok_dipinjam}</p>
+              </div>
+              <span class="px-2 py-0.5 rounded-full font-bold ${
+                b.stok_tersedia === 0 ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'
+              } shrink-0">
+                Sisa ${b.stok_tersedia} ${escapeHtml(b.satuan)}
+              </span>
+            </div>
+          `
+        )
+        .join('');
     }
 
-    tbody.innerHTML = rows
-      .map((row) => {
-        const isIn = row.tipe === 'IN';
-        const isOut = row.tipe === 'OUT';
-
-        const badgeClass = isIn
-          ? 'bg-emerald-100 text-emerald-800'
-          : isOut
-          ? 'bg-amber-100 text-amber-800'
-          : 'bg-blue-100 text-blue-800';
-
-        const qtyText = isIn
-          ? `<span class="font-bold text-emerald-700">+${row.jumlah}</span>`
-          : isOut
-          ? `<span class="font-bold text-amber-700">-${row.jumlah}</span>`
-          : `<span class="font-bold text-blue-700">${row.jumlah}</span>`;
-
-        const namaBarang = row.barang ? row.barang.nama_barang : 'Barang Terarsip';
-        const kodeBarang = row.barang ? row.barang.kode_barang : '-';
-        const satuan = row.barang ? row.barang.satuan : 'unit';
-        const petugas = row.petugas ? row.petugas.nama_pengguna : 'Sistem';
-
-        return `
-          <tr class="hover:bg-slate-50/80 transition">
-            <td class="py-3 px-4 text-xs text-slate-600 whitespace-nowrap">${formatTanggalWIB(row.created_at)}</td>
-            <td class="py-3 px-4 whitespace-nowrap">
-              <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${badgeClass}">${escapeHtml(row.tipe)}</span>
-            </td>
-            <td class="py-3 px-4">
-              <div class="font-semibold text-slate-900">${escapeHtml(namaBarang)}</div>
-              <div class="text-xs font-mono text-slate-500">${escapeHtml(kodeBarang)}</div>
-            </td>
-            <td class="py-3 px-4 text-right whitespace-nowrap">
-              ${qtyText} <span class="text-xs text-slate-500">${escapeHtml(satuan)}</span>
-            </td>
-            <td class="py-3 px-4 text-right text-xs text-slate-600 whitespace-nowrap">
-              ${row.stok_sebelum} &rarr; <strong class="text-slate-900">${row.stok_sesudah}</strong>
-            </td>
-            <td class="py-3 px-4 text-xs text-slate-700 max-w-xs truncate">${escapeHtml(row.keterangan || '-')}</td>
-            <td class="py-3 px-4 text-xs font-medium text-slate-700 whitespace-nowrap">${escapeHtml(petugas)}</td>
-          </tr>
-        `;
-      })
-      .join('');
-  }
-
-  async function loadDashboard() {
-    const errorBox = document.getElementById('dashboard-error');
-
-    try {
-      const res = await ApiClient.request('/api/dashboard/summary');
-      const { kpi, kategori, kondisi, ketersediaan, watchlist, aktivitas_terbaru } = res.data;
-
-      // 1. KPI Cards
-      document.getElementById('kpi-total-jenis').textContent = kpi.total_jenis_barang;
-      document.getElementById('kpi-kategori-sub').textContent =
-        `${kategori.sport.jenis} Sport \u2022 ${kategori.non_sport.jenis} Non-Sport`;
-
-      document.getElementById('kpi-total-unit').textContent = kpi.total_unit_stok;
-      document.getElementById('kpi-total-dipinjam').textContent = kpi.total_dipinjam;
-      document.getElementById('kpi-tersedia-sub').textContent =
-        `${ketersediaan.tersedia} item berstatus Tersedia`;
-
-      document.getElementById('kpi-total-alert').textContent = kpi.total_perlu_perhatian;
-      document.getElementById('kpi-rusak-sub').textContent = `${kpi.total_rusak} item kondisi Rusak`;
-
-      // 2. Komposisi Kategori
-      document.getElementById('label-kat-sport').textContent =
-        `${kategori.sport.jenis} jenis (${kategori.sport.persen}%)`;
-      document.getElementById('bar-kat-sport').style.width = `${kategori.sport.persen}%`;
-      document.getElementById('unit-kat-sport').textContent = `Total stok: ${kategori.sport.unit} unit`;
-
-      document.getElementById('label-kat-nonsport').textContent =
-        `${kategori.non_sport.jenis} jenis (${kategori.non_sport.persen}%)`;
-      document.getElementById('bar-kat-nonsport').style.width = `${kategori.non_sport.persen}%`;
-      document.getElementById('unit-kat-nonsport').textContent = `Total stok: ${kategori.non_sport.unit} unit`;
-
-      // 3. Kondisi Fisik
-      document.getElementById('label-kondisi-baik').textContent =
-        `${kondisi.baik.count} item (${kondisi.baik.persen}%)`;
-      document.getElementById('bar-kondisi-baik').style.width = `${kondisi.baik.persen}%`;
-
-      document.getElementById('label-kondisi-cukup').textContent =
-        `${kondisi.cukup.count} item (${kondisi.cukup.persen}%)`;
-      document.getElementById('bar-kondisi-cukup').style.width = `${kondisi.cukup.persen}%`;
-
-      document.getElementById('label-kondisi-rusak').textContent =
-        `${kondisi.rusak.count} item (${kondisi.rusak.persen}%)`;
-      document.getElementById('bar-kondisi-rusak').style.width = `${kondisi.rusak.persen}%`;
-
-      // 4. Watchlist & Aktivitas Terbaru
-      renderWatchlist(watchlist);
-      renderRecentMovements(aktivitas_terbaru);
-    } catch (err) {
-      if (errorBox) {
-        errorBox.textContent = err.message;
-        errorBox.classList.remove('hidden');
-      }
+    // Watchlist 3: Kondisi Rusak / Cukup
+    const kondisiContainer = document.getElementById('list-kondisi-perhatian');
+    if (!watchlist.kondisi_perlu_perhatian.length) {
+      kondisiContainer.innerHTML =
+        '<p class="text-slate-500 py-4 text-center border border-dashed border-slate-200 rounded-xl">Seluruh unit aset dalam kondisi Baik.</p>';
+    } else {
+      kondisiContainer.innerHTML = watchlist.kondisi_perlu_perhatian
+        .slice(0, 5)
+        .map(
+          (b) => `
+            <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2">
+              <div>
+                <p class="font-bold text-slate-900">${escapeHtml(b.nama_barang)}</p>
+                <p class="text-slate-500 font-mono">${escapeHtml(b.kode_barang)}</p>
+              </div>
+              <div class="flex gap-1 shrink-0">
+                ${b.stok_rusak > 0 ? `<span class="px-2 py-0.5 rounded-full font-bold bg-red-100 text-red-800">${b.stok_rusak} Rusak</span>` : ''}
+                ${b.stok_cukup > 0 ? `<span class="px-2 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800">${b.stok_cukup} Cukup</span>` : ''}
+              </div>
+            </div>
+          `
+        )
+        .join('');
     }
-  }
 
-  loadDashboard();
+    // Recent Audit Logs
+    const logsTbody = document.getElementById('dashboard-recent-logs');
+    if (!recent_movements.length) {
+      logsTbody.innerHTML =
+        '<tr><td colspan="5" class="py-6 text-center text-slate-500">Belum ada aktivitas tercatat.</td></tr>';
+    } else {
+      logsTbody.innerHTML = recent_movements
+        .map((row) => {
+          const badge = TIPE_BADGES[row.tipe] || 'bg-slate-100 text-slate-800';
+          return `
+            <tr class="hover:bg-slate-50">
+              <td class="py-3 px-4 text-slate-500 whitespace-nowrap">${formatWaktuWIB(row.created_at)}</td>
+              <td class="py-3 px-4 whitespace-nowrap">
+                <span class="px-2 py-0.5 rounded-full font-bold ${badge}">${escapeHtml(row.tipe)}</span>
+              </td>
+              <td class="py-3 px-4 font-semibold text-slate-900 whitespace-nowrap">
+                ${escapeHtml(row.barang?.nama_barang || '-')}
+              </td>
+              <td class="py-3 px-4 text-slate-700">${escapeHtml(row.keterangan || '-')}</td>
+              <td class="py-3 px-4 text-slate-600 whitespace-nowrap">${escapeHtml(row.petugas?.nama_pengguna || 'Sistem')}</td>
+            </tr>
+          `;
+        })
+        .join('');
+    }
+  } catch (err) {
+    console.error('Gagal memuat dashboard:', err);
+  }
 });

@@ -1,17 +1,24 @@
 const { getDbClient } = require('../config/db');
 
 const SELECT_COLUMNS =
-  'id, kode_barang, nama_barang, kategori, deskripsi, satuan, stok_sistem, stok_dipinjam, kondisi, is_archived, created_at, updated_at';
+  'id, kode_barang, nama_barang, kategori, deskripsi, satuan, stok_sistem, stok_dipinjam, stok_baik, stok_cukup, stok_rusak, is_archived, created_at, updated_at';
 
 function enrichBarang(row) {
   if (!row) return null;
   const stokSistem = Number(row.stok_sistem) || 0;
   const stokDipinjam = Number(row.stok_dipinjam) || 0;
+  const stokBaik = Number(row.stok_baik) || 0;
+  const stokCukup = Number(row.stok_cukup) || 0;
+  const stokRusak = Number(row.stok_rusak) || 0;
+
   return {
     ...row,
     stok_sistem: stokSistem,
     stok_dipinjam: stokDipinjam,
-    stok_tersedia: Math.max(0, stokSistem - stokDipinjam)
+    stok_tersedia: Math.max(0, stokSistem - stokDipinjam),
+    stok_baik: stokBaik,
+    stok_cukup: stokCukup,
+    stok_rusak: stokRusak
   };
 }
 
@@ -28,10 +35,6 @@ async function findAll({ search = '', kategori = '', kondisi = '', statusStok = 
     query = query.eq('kategori', kategori);
   }
 
-  if (kondisi) {
-    query = query.eq('kondisi', kondisi);
-  }
-
   const { data, error } = await query;
   if (error) throw error;
 
@@ -45,6 +48,14 @@ async function findAll({ search = '', kategori = '', kondisi = '', statusStok = 
         b.kode_barang.toLowerCase().includes(kw) ||
         (b.deskripsi && b.deskripsi.toLowerCase().includes(kw))
     );
+  }
+
+  if (kondisi === 'Baik') {
+    items = items.filter((b) => b.stok_baik > 0);
+  } else if (kondisi === 'Cukup') {
+    items = items.filter((b) => b.stok_cukup > 0);
+  } else if (kondisi === 'Rusak') {
+    items = items.filter((b) => b.stok_rusak > 0);
   }
 
   if (statusStok === 'TERSEDIA') {
@@ -84,7 +95,7 @@ async function findByKode(kodeBarang) {
   return enrichBarang(data);
 }
 
-async function create({ kode_barang, nama_barang, kategori, deskripsi, satuan, stok_sistem, kondisi }) {
+async function create({ kode_barang, nama_barang, kategori, deskripsi, satuan, stok_sistem }) {
   const supabase = getDbClient();
   const { data, error } = await supabase
     .from('barang')
@@ -97,7 +108,9 @@ async function create({ kode_barang, nama_barang, kategori, deskripsi, satuan, s
         satuan,
         stok_sistem,
         stok_dipinjam: 0,
-        kondisi
+        stok_baik: stok_sistem,
+        stok_cukup: 0,
+        stok_rusak: 0
       }
     ])
     .select(SELECT_COLUMNS)
@@ -107,8 +120,10 @@ async function create({ kode_barang, nama_barang, kategori, deskripsi, satuan, s
   return enrichBarang(data);
 }
 
-async function update(id, { kode_barang, nama_barang, kategori, deskripsi, satuan, stok_sistem, kondisi }) {
+async function update(id, { kode_barang, nama_barang, kategori, deskripsi, satuan, stok_baik, stok_cukup, stok_rusak }) {
   const supabase = getDbClient();
+  const stokSistem = stok_baik + stok_cukup + stok_rusak;
+
   const { data, error } = await supabase
     .from('barang')
     .update({
@@ -117,8 +132,10 @@ async function update(id, { kode_barang, nama_barang, kategori, deskripsi, satua
       kategori,
       deskripsi: deskripsi || null,
       satuan,
-      stok_sistem,
-      kondisi,
+      stok_sistem: stokSistem,
+      stok_baik,
+      stok_cukup,
+      stok_rusak,
       updated_at: new Date().toISOString()
     })
     .eq('id', id)
@@ -130,12 +147,14 @@ async function update(id, { kode_barang, nama_barang, kategori, deskripsi, satua
   return enrichBarang(data);
 }
 
-async function updateKondisi(id, kondisi) {
+async function updateKondisiCounts(id, { stok_baik, stok_cukup, stok_rusak }) {
   const supabase = getDbClient();
   const { data, error } = await supabase
     .from('barang')
     .update({
-      kondisi,
+      stok_baik,
+      stok_cukup,
+      stok_rusak,
       updated_at: new Date().toISOString()
     })
     .eq('id', id)
@@ -153,5 +172,5 @@ module.exports = {
   findByKode,
   create,
   update,
-  updateKondisi
+  updateKondisiCounts
 };

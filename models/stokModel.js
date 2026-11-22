@@ -1,17 +1,28 @@
 const { getDbClient } = require('../config/db');
 
-async function updateBarangStockOptimistic(barangId, expectedOldStock, newStock) {
+const BARANG_SELECT_FIELDS =
+  'id, kode_barang, nama_barang, kategori, satuan, stok_sistem, stok_dipinjam, stok_baik, stok_cukup, stok_rusak';
+
+async function updateBarangStockOptimistic(
+  barangId,
+  expectedOldStock,
+  newStock,
+  { stok_baik, stok_cukup, stok_rusak }
+) {
   const supabase = getDbClient();
   const { data, error } = await supabase
     .from('barang')
     .update({
       stok_sistem: newStock,
+      stok_baik,
+      stok_cukup,
+      stok_rusak,
       updated_at: new Date().toISOString()
     })
     .eq('id', barangId)
     .eq('stok_sistem', expectedOldStock)
     .eq('is_archived', false)
-    .select('id, kode_barang, nama_barang, kategori, satuan, stok_sistem, stok_dipinjam')
+    .select(BARANG_SELECT_FIELDS)
     .maybeSingle();
 
   if (error) throw error;
@@ -29,7 +40,7 @@ async function updateBarangDipinjamOptimistic(barangId, expectedOldDipinjam, new
     .eq('id', barangId)
     .eq('stok_dipinjam', expectedOldDipinjam)
     .eq('is_archived', false)
-    .select('id, kode_barang, nama_barang, kategori, satuan, stok_sistem, stok_dipinjam')
+    .select(BARANG_SELECT_FIELDS)
     .maybeSingle();
 
   if (error) throw error;

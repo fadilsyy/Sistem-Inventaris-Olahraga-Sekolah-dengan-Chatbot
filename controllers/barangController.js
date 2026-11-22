@@ -47,14 +47,15 @@ const update = asyncHandler(async (req, res) => {
 });
 
 const updateKondisi = asyncHandler(async (req, res) => {
-  const updated = await barangService.updateKondisiBarang(
+  const { dari_kondisi, ke_kondisi, jumlah, keterangan } = req.body;
+  const updated = await barangService.ubahKondisiBatch(
     req.params.id,
-    req.body.kondisi,
+    { dari_kondisi, ke_kondisi, jumlah, keterangan },
     req.user.id
   );
   return sendSuccess(res, {
     statusCode: 200,
-    message: `Kondisi "${updated.nama_barang}" diubah menjadi ${updated.kondisi}.`,
+    message: `Perubahan kondisi ${jumlah} ${updated.satuan} "${updated.nama_barang}" (${dari_kondisi} → ${ke_kondisi}) berhasil dicatat.`,
     data: updated
   });
 });
