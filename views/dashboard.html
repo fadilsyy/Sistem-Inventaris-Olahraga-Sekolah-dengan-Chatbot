@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Gudang Olahraga Sekolah</title>
+  <link href="/css/output.css" rel="stylesheet">
+</head>
+<body id="page-dashboard" class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- Top Navigation Bar -->
+  <header class="bg-blue-900 text-white shadow-sm sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-6">
+        <a href="/dashboard" class="font-bold text-base tracking-tight flex items-center gap-2">
+          <span class="bg-blue-700 px-2.5 py-1 rounded-lg text-xs font-extrabold uppercase">INV-OR</span>
+          <span>Gudang Olahraga</span>
+        </a>
+        <nav class="hidden md:flex items-center gap-1 text-sm">
+          <a href="/dashboard" class="px-3 py-2 rounded-lg bg-blue-800 text-white font-semibold">Dashboard</a>
+          <a href="/inventaris" class="px-3 py-2 rounded-lg text-blue-200 hover:bg-blue-800 hover:text-white transition">Data Inventaris</a>
+          <a href="/barang-masuk" class="px-3 py-2 rounded-lg text-blue-200 hover:bg-blue-800 hover:text-white transition">Barang Masuk</a>
+          <a href="/barang-keluar" class="px-3 py-2 rounded-lg text-blue-200 hover:bg-blue-800 hover:text-white transition">Barang Keluar</a>
+          <a href="/riwayat" class="px-3 py-2 rounded-lg text-blue-200 hover:bg-blue-800 hover:text-white transition">Riwayat Stok</a>
+        </nav>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span id="nav-user-name" class="hidden sm:inline text-xs text-blue-200 font-medium">Petugas Gudang</span>
+        <button id="btn-logout" class="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-xs font-semibold text-white cursor-pointer transition">
+          Logout
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Header Sambutan & Aksi Cepat -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div>
+        <p id="dashboard-date" class="text-xs font-semibold uppercase tracking-wider text-blue-700">Memuat tanggal...</p>
+        <h1 class="text-2xl font-bold text-slate-900 mt-1">
+          Selamat Datang, <span id="welcome-user-name">Petugas Gudang</span>
+        </h1>
+        <p class="text-sm text-slate-600 mt-0.5">
+          Ringkasan kondisi stok, ketersediaan perlengkapan olahraga, dan aktivitas mutasi gudang sekolah.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2.5">
+        <a href="/barang-masuk" class="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold shadow-sm transition">
+          + Barang Masuk (IN)
+        </a>
+        <a href="/barang-keluar" class="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-sm transition">
+          - Barang Keluar (OUT)
+        </a>
+        <a href="/inventaris" class="px-4 py-2.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white text-xs font-semibold shadow-sm transition">
+          Kelola Inventaris
+        </a>
+      </div>
+    </div>
+
+    <div id="dashboard-error" class="hidden px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-medium"></div>
+
+    <!-- 4 Kartu KPI Utama -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Jenis Barang</span>
+          <span class="px-2 py-0.5 rounded-md text-xs font-bold bg-blue-50 text-blue-700">Aktif</span>
+        </div>
+        <p id="kpi-total-jenis" class="text-3xl font-extrabold text-slate-900 mt-2">0</p>
+        <p id="kpi-kategori-sub" class="text-xs text-slate-500 mt-1">0 Sport &bull; 0 Non-Sport</p>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Unit di Gudang</span>
+          <span class="px-2 py-0.5 rounded-md text-xs font-bold bg-emerald-50 text-emerald-700">Stok Sistem</span>
+        </div>
+        <p id="kpi-total-unit" class="text-3xl font-extrabold text-emerald-700 mt-2">0</p>
+        <p id="kpi-unit-sub" class="text-xs text-slate-500 mt-1">Akumulasi seluruh unit aktif</p>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Status Dipinjam</span>
+          <span class="px-2 py-0.5 rounded-md text-xs font-bold bg-amber-50 text-amber-700">Sirkulasi</span>
+        </div>
+        <p id="kpi-total-dipinjam" class="text-3xl font-extrabold text-amber-600 mt-2">0</p>
+        <p id="kpi-tersedia-sub" class="text-xs text-slate-500 mt-1">0 item berstatus Tersedia</p>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Perlu Perhatian</span>
+          <span class="px-2 py-0.5 rounded-md text-xs font-bold bg-red-50 text-red-700">Alert</span>
+        </div>
+        <p id="kpi-total-alert" class="text-3xl font-extrabold text-red-600 mt-2">0</p>
+        <p id="kpi-rusak-sub" class="text-xs text-slate-500 mt-1">0 item kondisi Rusak</p>
+      </div>
+    </div>
+
+    <!-- Analitik Distribusi & Watchlist -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- Kolom Kiri: Distribusi Kategori & Kondisi Fisik (5 Kolom) -->
+      <div class="lg:col-span-5 space-y-6">
+        <!-- Distribusi Kategori -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h2 class="text-base font-bold text-slate-900">Komposisi Kategori Inventaris</h2>
+            <span class="text-xs text-slate-500">PRD v1.1</span>
+          </div>
+
+          <div class="space-y-4 text-sm">
+            <div>
+              <div class="flex justify-between font-semibold text-slate-800 mb-1">
+                <span>Sport (Alat Olahraga Utama)</span>
+                <span id="label-kat-sport">0 jenis (0%)</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                <div id="bar-kat-sport" class="bg-blue-700 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+              </div>
+              <p id="unit-kat-sport" class="text-xs text-slate-500 mt-1">Total stok: 0 unit</p>
+            </div>
+
+            <div>
+              <div class="flex justify-between font-semibold text-slate-800 mb-1">
+                <span>Non-Sport (Sarana Pendukung)</span>
+                <span id="label-kat-nonsport">0 jenis (0%)</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                <div id="bar-kat-nonsport" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+              </div>
+              <p id="unit-kat-nonsport" class="text-xs text-slate-500 mt-1">Total stok: 0 unit</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Distribusi Kondisi Fisik -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h2 class="text-base font-bold text-slate-900">Kondisi Fisik Perlengkapan</h2>
+            <a href="/inventaris" class="text-xs font-semibold text-blue-700 hover:underline">Detail &rarr;</a>
+          </div>
+
+          <div class="space-y-3.5 text-sm">
+            <div>
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span class="text-emerald-800">Baik (Siap Pakai)</span>
+                <span id="label-kondisi-baik" class="text-slate-700">0 item (0%)</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                <div id="bar-kondisi-baik" class="bg-emerald-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span class="text-amber-800">Cukup (Layak Terbatas)</span>
+                <span id="label-kondisi-cukup" class="text-slate-700">0 item (0%)</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                <div id="bar-kondisi-cukup" class="bg-amber-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span class="text-red-700">Rusak (Perlu Perbaikan/Penggantian)</span>
+                <span id="label-kondisi-rusak" class="text-slate-700">0 item (0%)</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                <div id="bar-kondisi-rusak" class="bg-red-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kolom Kanan: Daftar Peringatan Dini / Watchlist (7 Kolom) -->
+      <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Daftar Barang Perlu Perhatian</h2>
+            <p class="text-xs text-slate-500">Prioritas stok habis/menipis (&le; 2 unit), kondisi rusak, atau sedang dipinjam.</p>
+          </div>
+          <a href="/inventaris" class="text-xs font-semibold text-blue-700 hover:underline">Buka Inventaris &rarr;</a>
+        </div>
+
+        <div class="overflow-x-auto flex-1">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold uppercase text-slate-600">
+                <th class="py-3 px-4">Barang</th>
+                <th class="py-3 px-4 text-right">Sisa Stok</th>
+                <th class="py-3 px-4">Indikator Perhatian</th>
+                <th class="py-3 px-4 text-right">Tindakan</th>
+              </tr>
+            </thead>
+            <tbody id="watchlist-table-body" class="divide-y divide-slate-200 text-sm">
+              <tr>
+                <td colspan="4" class="py-10 text-center text-slate-500">Memuat analisis inventaris...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tabel Aktivitas Mutasi Stok Terbaru -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-bold text-slate-900">Aktivitas Pergerakan Stok Terbaru</h2>
+          <p class="text-xs text-slate-500">6 catatan mutasi masuk/keluar terakhir pada gudang olahraga.</p>
+        </div>
+        <a href="/riwayat" class="text-xs font-semibold text-blue-700 hover:underline">Lihat Semua Audit Log &rarr;</a>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold uppercase text-slate-600">
+              <th class="py-3 px-4">Waktu</th>
+              <th class="py-3 px-4">Tipe</th>
+              <th class="py-3 px-4">Barang</th>
+              <th class="py-3 px-4 text-right">Jumlah</th>
+              <th class="py-3 px-4 text-right">Perubahan Stok</th>
+              <th class="py-3 px-4">Keterangan</th>
+              <th class="py-3 px-4">Petugas</th>
+            </tr>
+          </thead>
+          <tbody id="dashboard-recent-body" class="divide-y divide-slate-200 text-sm">
+            <tr>
+              <td colspan="7" class="py-8 text-center text-slate-500">Memuat riwayat transaksi terbaru...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/chatbot.js"></script>
+</body>
+</html>
