@@ -62,8 +62,6 @@ async function findAll({ search = '', kategori = '', kondisi = '', statusStok = 
     items = items.filter((b) => b.stok_tersedia > 0);
   } else if (statusStok === 'DIPINJAM') {
     items = items.filter((b) => b.stok_dipinjam > 0);
-  } else if (statusStok === 'HABIS') {
-    items = items.filter((b) => b.stok_tersedia === 0);
   }
 
   return items;

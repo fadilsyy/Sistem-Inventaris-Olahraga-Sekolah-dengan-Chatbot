@@ -39,13 +39,13 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
         <h1 class="text-2xl font-bold text-slate-900">Manajemen Data Inventaris</h1>
-        <p class="text-sm text-slate-600 mt-0.5">Kelola aset perlengkapan olahraga, transaksi masuk/keluar, sirkulasi peminjaman, dan kondisi fisik per unit.</p>
+        <p class="text-sm text-slate-600 mt-0.5">Kelola aset perlengkapan olahraga, peminjaman, dan kondisi.</p>
       </div>
       <button
         id="btn-open-create"
         class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white text-sm font-semibold shadow-sm cursor-pointer transition"
       >
-        <span>+ Tambah Barang Baru</span>
+        <span>+ Tambah Barang</span>
       </button>
     </div>
 
@@ -59,19 +59,19 @@
         <p id="stat-total-jenis" class="text-2xl font-bold text-slate-900 mt-1">0</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-        <p class="text-xs font-medium text-slate-500">Total Unit Aset</p>
+        <p class="text-xs font-medium text-slate-500">Total Unit</p>
         <p id="stat-total-aset" class="text-2xl font-bold text-blue-800 mt-1">0</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-        <p class="text-xs font-medium text-slate-500">Tersedia di Rak</p>
+        <p class="text-xs font-medium text-slate-500">Tersedia</p>
         <p id="stat-total-tersedia" class="text-2xl font-bold text-emerald-700 mt-1">0</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-        <p class="text-xs font-medium text-slate-500">Sedang Dipinjam</p>
+        <p class="text-xs font-medium text-slate-500">Dipinjam</p>
         <p id="stat-total-dipinjam" class="text-2xl font-bold text-amber-600 mt-1">0</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm col-span-2 sm:col-span-1">
-        <p class="text-xs font-medium text-slate-500">Unit Rusak / Cukup</p>
+        <p class="text-xs font-medium text-slate-500">Rusak / Cukup</p>
         <p class="text-xl font-bold text-red-600 mt-1">
           <span id="stat-total-rusak">0</span> <span class="text-xs font-normal text-slate-500">Rusak</span>
           <span class="text-slate-300 mx-1">/</span>
@@ -88,7 +88,7 @@
           <input
             type="text"
             id="filter-search"
-            placeholder="Ketik misal: Bola Basket atau SPT-001..."
+            placeholder="Contoh: Bola Basket atau B-001"
             class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
           >
         </div>
@@ -103,7 +103,7 @@
         </div>
 
         <div>
-          <label for="filter-kondisi" class="block text-xs font-semibold text-slate-600 mb-1">Filter Unit Kondisi</label>
+          <label for="filter-kondisi" class="block text-xs font-semibold text-slate-600 mb-1">Kondisi</label>
           <select id="filter-kondisi" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600">
             <option value="">Semua Kondisi</option>
             <option value="Baik">Memiliki Unit Baik</option>
@@ -113,9 +113,13 @@
         </div>
 
         <div>
-          <label for="filter-status-stok" class="block text-xs font-semibold text-slate-600 mb-1">Status Ketersediaan</label>
+          <label for="filter-status-stok" class="block text-xs font-semibold text-slate-600 mb-1">Status</label>
           <div class="flex gap-2">
             <select id="filter-status-stok" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600">
+              <option value="" selected>Semua</option>
+              <option value="TERSEDIA">Tersedia</option>
+              <option value="DIPINJAM">Dipinjam</option>
+            </select>
               <option value="">Semua Status</option>
               <option value="TERSEDIA">Tersedia di Rak</option>
               <option value="DIPINJAM">Ada Dipinjam</option>
@@ -143,9 +147,9 @@
               <th class="py-3.5 px-4">Kode</th>
               <th class="py-3.5 px-4">Nama Barang &amp; Deskripsi</th>
               <th class="py-3.5 px-4">Kategori</th>
-              <th class="py-3.5 px-4">Rincian Stok &amp; Sirkulasi</th>
-              <th class="py-3.5 px-4">Komposisi Kondisi Unit</th>
-              <th class="py-3.5 px-4 text-right">Aksi Operasional</th>
+              <th class="py-3.5 px-4">Rincian Stok</th>
+              <th class="py-3.5 px-4">Kondisi</th>
+              <th class="py-3.5 px-4 text-right">Actions</th>
             </tr>
           </thead>
           <tbody id="barang-table-body" class="divide-y divide-slate-200 text-sm">
@@ -199,32 +203,32 @@
         </div>
 
         <p id="kategori-hint" class="text-xs text-blue-800 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
-          Contoh kategori Sport: Bola (basket, futsal, voli, sepak bola), raket badminton, bet tenis meja, shuttlecock, net, matras senam, dan perlengkapan latihan olahraga utama.
+          Contoh: Bola (basket, futsal, voli, sepak bola), raket badminton, bet tenis meja, shuttlecock, net dan perlengkapan latihan olahraga utama.
         </p>
 
         <!-- Mode Tambah Baru: Input Stok Awal (Default Baik) -->
         <div id="create-stok-wrapper">
-          <label for="stok_sistem" class="block font-semibold text-slate-700 mb-1">Stok Awal (Otomatis Kondisi Baik) <span class="text-red-500">*</span></label>
+          <label for="stok_sistem" class="block font-semibold text-slate-700 mb-1">Stok Awal <span class="text-red-500">*</span></label>
           <input type="number" id="stok_sistem" min="0" value="0" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600">
         </div>
 
         <!-- Mode Edit: Rincian Unit per Kondisi -->
         <div id="edit-kondisi-wrapper" class="hidden space-y-2 p-3.5 rounded-xl bg-slate-50 border border-slate-200">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-700">Koreksi Komposisi Unit per Kondisi</span>
-            <span id="edit-total-badge" class="text-xs font-bold text-blue-800">Total Aset: 0</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-700">Kondisi</span>
+            <span id="edit-total-badge" class="text-xs font-bold text-blue-800">Total: 0</span>
           </div>
           <div class="grid grid-cols-3 gap-3">
             <div>
-              <label for="edit_stok_baik" class="block text-xs font-semibold text-emerald-800 mb-1">Unit Baik</label>
+              <label for="edit_stok_baik" class="block text-xs font-semibold text-emerald-800 mb-1">Baik</label>
               <input type="number" id="edit_stok_baik" min="0" value="0" class="edit-kondisi-input w-full px-2.5 py-1.5 rounded-lg border border-emerald-300 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600">
             </div>
             <div>
-              <label for="edit_stok_cukup" class="block text-xs font-semibold text-amber-800 mb-1">Unit Cukup</label>
+              <label for="edit_stok_cukup" class="block text-xs font-semibold text-amber-800 mb-1">Cukup</label>
               <input type="number" id="edit_stok_cukup" min="0" value="0" class="edit-kondisi-input w-full px-2.5 py-1.5 rounded-lg border border-amber-300 bg-white focus:outline-none focus:ring-2 focus:ring-amber-600">
             </div>
             <div>
-              <label for="edit_stok_rusak" class="block text-xs font-semibold text-red-800 mb-1">Unit Rusak</label>
+              <label for="edit_stok_rusak" class="block text-xs font-semibold text-red-800 mb-1">Rusak</label>
               <input type="number" id="edit_stok_rusak" min="0" value="0" class="edit-kondisi-input w-full px-2.5 py-1.5 rounded-lg border border-red-300 bg-white focus:outline-none focus:ring-2 focus:ring-red-600">
             </div>
           </div>
@@ -232,7 +236,7 @@
         </div>
 
         <div>
-          <label for="deskripsi" class="block font-semibold text-slate-700 mb-1">Deskripsi / Catatan Tambahan</label>
+          <label for="deskripsi" class="block font-semibold text-slate-700 mb-1">Keterangan</label>
           <textarea id="deskripsi" rows="2" placeholder="Opsional: merek, ukuran, lokasi rak penyimpanan..." class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600"></textarea>
         </div>
 
@@ -255,7 +259,6 @@
     <div class="bg-white w-full max-w-md rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
       <div class="px-6 py-4 bg-emerald-800 text-white flex items-center justify-between">
         <div>
-          <span class="text-[10px] font-bold uppercase tracking-wider bg-emerald-700 px-2 py-0.5 rounded">TRANSAKSI IN (KONDISI BAIK)</span>
           <h2 class="text-base font-bold mt-0.5">Catat Barang Masuk</h2>
         </div>
         <button type="button" data-close-modal="modal-masuk" class="text-emerald-200 hover:text-white text-xl leading-none cursor-pointer">&times;</button>
@@ -273,12 +276,12 @@
 
         <div>
           <label for="masuk-jumlah" class="block font-semibold text-slate-700 mb-1">Jumlah Unit Masuk <span class="text-red-500">*</span></label>
-          <input type="number" id="masuk-jumlah" min="1" step="1" required placeholder="Otomatis masuk ke stok Baik" class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+          <input type="number" id="masuk-jumlah" min="1" step="1" required placeholder="Masukkan jumlah unit" class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-600">
         </div>
 
         <div>
           <label for="masuk-keterangan" class="block font-semibold text-slate-700 mb-1">Sumber / Keterangan Masuk <span class="text-red-500">*</span></label>
-          <textarea id="masuk-keterangan" rows="2" required placeholder="Wajib diisi. Contoh: Pengadaan Dana BOS / Donasi Alumni" class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-600"></textarea>
+          <textarea id="masuk-keterangan" rows="2" required placeholder="Contoh: Pengadaan Dana BOS / Donasi Alumni" class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-600"></textarea>
         </div>
 
         <div class="pt-3 border-t border-slate-200 flex items-center justify-end gap-2">
@@ -286,7 +289,7 @@
             Batal
           </button>
           <button type="submit" id="btn-submit-masuk" class="px-5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold cursor-pointer">
-            + Simpan Barang Masuk
+            Simpan
           </button>
         </div>
       </form>
@@ -300,8 +303,7 @@
     <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
       <div class="px-6 py-4 bg-red-800 text-white flex items-center justify-between">
         <div>
-          <span class="text-[10px] font-bold uppercase tracking-wider bg-red-700 px-2 py-0.5 rounded">TRANSAKSI OUT (PERMANEN)</span>
-          <h2 class="text-base font-bold mt-0.5">Catat Barang Keluar / Pengurangan</h2>
+          <h2 class="text-base font-bold mt-0.5">Catat Barang Keluar</h2>
         </div>
         <button type="button" data-close-modal="modal-keluar" class="text-red-200 hover:text-white text-xl leading-none cursor-pointer">&times;</button>
       </div>
@@ -330,7 +332,7 @@
             <div class="flex items-center justify-between gap-3">
               <label class="flex items-center gap-2.5 cursor-pointer text-slate-800">
                 <input type="checkbox" id="chk-keluar-rusak" class="chk-keluar-kondisi rounded text-red-700 focus:ring-red-600" data-target="qty-keluar-rusak">
-                <span>Kondisi <strong class="text-red-700">Rusak</strong> <span id="avail-keluar-rusak" class="text-xs text-slate-500">(0 unit)</span></span>
+                <span> <strong class="text-red-700">Rusak</strong> <span id="avail-keluar-rusak" class="text-xs text-slate-500">(0 unit)</span></span>
               </label>
               <input type="number" id="qty-keluar-rusak" min="1" value="0" disabled class="qty-keluar-input w-24 px-2.5 py-1 text-right text-sm rounded-lg border border-slate-300 bg-slate-100 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-red-600">
             </div>
@@ -339,7 +341,7 @@
             <div class="flex items-center justify-between gap-3">
               <label class="flex items-center gap-2.5 cursor-pointer text-slate-800">
                 <input type="checkbox" id="chk-keluar-cukup" class="chk-keluar-kondisi rounded text-red-700 focus:ring-red-600" data-target="qty-keluar-cukup">
-                <span>Kondisi <strong class="text-amber-700">Cukup</strong> <span id="avail-keluar-cukup" class="text-xs text-slate-500">(0 unit)</span></span>
+                <span> <strong class="text-amber-700">Cukup</strong> <span id="avail-keluar-cukup" class="text-xs text-slate-500">(0 unit)</span></span>
               </label>
               <input type="number" id="qty-keluar-cukup" min="1" value="0" disabled class="qty-keluar-input w-24 px-2.5 py-1 text-right text-sm rounded-lg border border-slate-300 bg-slate-100 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-red-600">
             </div>
@@ -348,7 +350,7 @@
             <div class="flex items-center justify-between gap-3">
               <label class="flex items-center gap-2.5 cursor-pointer text-slate-800">
                 <input type="checkbox" id="chk-keluar-baik" class="chk-keluar-kondisi rounded text-red-700 focus:ring-red-600" data-target="qty-keluar-baik">
-                <span>Kondisi <strong class="text-emerald-700">Baik</strong> <span id="avail-keluar-baik" class="text-xs text-slate-500">(0 unit)</span></span>
+                <span> <strong class="text-emerald-700">Baik</strong> <span id="avail-keluar-baik" class="text-xs text-slate-500">(0 unit)</span></span>
               </label>
               <input type="number" id="qty-keluar-baik" min="1" value="0" disabled class="qty-keluar-input w-24 px-2.5 py-1 text-right text-sm rounded-lg border border-slate-300 bg-slate-100 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-red-600">
             </div>
@@ -377,7 +379,7 @@
             </label>
             <label class="flex items-center gap-2.5 cursor-pointer font-semibold text-slate-900 pt-1 border-t border-slate-200">
               <input type="radio" name="alasan_template" value="Lainnya" class="text-red-700 focus:ring-red-600">
-              <span>Lainnya (tulis alasan secara manual)</span>
+              <span>Lainnya</span>
             </label>
           </div>
         </div>
@@ -385,12 +387,12 @@
         <!-- Textbox Wajib Saat Opsi "Lainnya" Dipilih -->
         <div id="wrapper-alasan-lainnya" class="hidden">
           <label for="keluar-alasan-lainnya" class="block font-semibold text-slate-700 mb-1">
-            Rincian Alasan Lainnya <span class="text-red-500">*</span>
+            Alasan <span class="text-red-500">*</span>
           </label>
           <textarea
             id="keluar-alasan-lainnya"
             rows="2"
-            placeholder="Wajib diisi: jelaskan alasan pengurangan stok..."
+            placeholder="Jelaskan alasan pengurangan stok"
             class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-red-600"
           ></textarea>
         </div>
@@ -400,7 +402,7 @@
             Batal
           </button>
           <button type="submit" id="btn-submit-keluar" class="px-5 py-2 rounded-lg bg-red-700 hover:bg-red-800 text-white font-semibold cursor-pointer">
-            - Simpan Barang Keluar
+            Simpan
           </button>
         </div>
       </form>
@@ -414,7 +416,6 @@
     <div class="bg-white w-full max-w-xl rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
       <div class="px-6 py-4 bg-amber-700 text-white flex items-center justify-between shrink-0">
         <div>
-          <span class="text-[10px] font-bold uppercase tracking-wider bg-amber-600 px-2 py-0.5 rounded">SIRKULASI UNIT</span>
           <h2 class="text-base font-bold mt-0.5">Peminjaman &amp; Pengembalian Barang</h2>
         </div>
         <button type="button" data-close-modal="modal-pinjam" class="text-amber-100 hover:text-white text-xl leading-none cursor-pointer">&times;</button>
@@ -451,15 +452,14 @@
           <div class="flex flex-col sm:flex-row gap-2">
             <input type="text" id="pinjam-keterangan" placeholder="Kegiatan / catatan pinjam (opsional)" class="flex-1 px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-amber-600">
             <button type="submit" id="btn-submit-pinjam" class="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold cursor-pointer shrink-0">
-              + Catat Pinjam
+              Catat
             </button>
           </div>
         </form>
 
         <div class="space-y-2">
           <div class="flex items-center justify-between">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Daftar Peminjaman Aktif Saat Ini</h3>
-            <span class="text-[11px] text-slate-500">Pengembalian diproses per tiket sesi</span>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Peminjaman Aktif</h3>
           </div>
 
           <div id="active-pinjam-list" class="space-y-2">
@@ -483,7 +483,6 @@
     <div class="bg-white w-full max-w-md rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
       <div class="px-6 py-4 bg-indigo-900 text-white flex items-center justify-between">
         <div>
-          <span class="text-[10px] font-bold uppercase tracking-wider bg-indigo-700 px-2 py-0.5 rounded">AUDIT KONDISI UNIT</span>
           <h2 class="text-base font-bold mt-0.5">Ubah Kondisi Fisik Barang</h2>
         </div>
         <button type="button" data-close-modal="modal-kondisi" class="text-indigo-200 hover:text-white text-xl leading-none cursor-pointer">&times;</button>
@@ -501,7 +500,7 @@
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label for="kondisi-dari" class="block font-semibold text-slate-700 mb-1">Kondisi Asal <span class="text-red-500">*</span></label>
+            <label for="kondisi-dari" class="block font-semibold text-slate-700 mb-1">Kondisi Awal <span class="text-red-500">*</span></label>
             <select id="kondisi-dari" required class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600">
               <option value="Baik">Baik</option>
               <option value="Cukup">Cukup</option>
@@ -509,7 +508,7 @@
             </select>
           </div>
           <div>
-            <label for="kondisi-ke" class="block font-semibold text-slate-700 mb-1">Ubah Menjadi <span class="text-red-500">*</span></label>
+            <label for="kondisi-ke" class="block font-semibold text-slate-700 mb-1">Kondisi Baru <span class="text-red-500">*</span></label>
             <select id="kondisi-ke" required class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600">
               <option value="Cukup">Cukup</option>
               <option value="Rusak">Rusak</option>
@@ -520,22 +519,22 @@
 
         <div>
           <label for="kondisi-jumlah" class="block font-semibold text-slate-700 mb-1">
-            Jumlah Unit Terdampak <span class="text-red-500">*</span>
+            Jumlah Unit <span class="text-red-500">*</span>
           </label>
           <input type="number" id="kondisi-jumlah" min="1" step="1" value="1" required class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-600">
-          <p id="kondisi-max-hint" class="text-[11px] text-slate-500 mt-1">Maksimal sesuai jumlah unit pada kondisi asal.</p>
+          <p id="kondisi-max-hint" class="text-[11px] text-slate-500 mt-1">Maksimal sesuai jumlah unit pada kondisi awal.</p>
         </div>
 
         <!-- Keterangan Wajib untuk Cukup & Rusak; Tersembunyi jika Baik -->
         <div id="wrapper-kondisi-keterangan">
           <label for="kondisi-keterangan" class="block font-semibold text-slate-700 mb-1">
-            Keterangan Kondisi / Kerusakan <span class="text-red-500">*</span>
+            Keterangan <span class="text-red-500">*</span>
           </label>
           <textarea
             id="kondisi-keterangan"
             rows="2"
             required
-            placeholder="Wajib diisi: jelaskan kondisi/kerusakan unit (misal: jahitan bola mulai terkelupas)"
+            placeholder="Contoh: Jahitan bola mulai terkelupas"
             class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-600"
           ></textarea>
         </div>
@@ -545,7 +544,7 @@
             Batal
           </button>
           <button type="submit" id="btn-submit-kondisi" class="px-5 py-2 rounded-lg bg-indigo-800 hover:bg-indigo-900 text-white font-semibold cursor-pointer">
-            Simpan Kondisi
+            Simpan
           </button>
         </div>
       </form>

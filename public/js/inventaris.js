@@ -7,9 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const CATEGORY_HINTS = {
     Sport:
-      'Contoh kategori Sport: Bola (basket, futsal, voli, sepak bola), raket badminton, bet tenis meja, shuttlecock, net, matras senam, dan perlengkapan latihan olahraga utama.',
+      'Contoh: Bola (basket, futsal, voli, sepak bola), raket badminton, bet tenis meja, shuttlecock, net, matras senam, dan perlengkapan latihan olahraga utama.',
     'Non-Sport':
-      'Contoh kategori Non-Sport: Peluit wasit, stopwatch, papan skor manual, pompa bola, rompi latihan, cone/marker kerucut, kotak P3K, dan sarana pendukung gudang.'
+      'Contoh: Peluit, stopwatch, papan skor, pompa bola, rompi latihan, cone, dan sarana pendukung.'
   };
 
   // Elemen Tabel & Filter
@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
               <div class="flex items-center gap-1.5 mt-0.5">
                 ${dipinjamTag}
-                <span class="text-[11px] text-slate-500">&bull; Total Aset: ${item.stok_sistem}</span>
+                <span class="text-[11px] text-slate-500">&bull; Total: ${item.stok_sistem}</span>
               </div>
             </td>
             <td class="py-3.5 px-4">
@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   data-id="${item.id}"
                   class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold cursor-pointer transition"
                 >
-                  + Masuk
+                   Masuk
                 </button>
                 <button
                   type="button"
@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   data-id="${item.id}"
                   class="px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-800 border border-red-200 text-xs font-semibold cursor-pointer transition"
                 >
-                  - Keluar
+                   Keluar
                 </button>
                 <button
                   type="button"
@@ -289,7 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   data-id="${item.id}"
                   class="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold cursor-pointer transition"
                 >
-                  Pinjam / Kembali
+                  Status
                 </button>
                 <button
                   type="button"
@@ -323,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const c = parseInt(document.getElementById('edit_stok_cukup').value, 10) || 0;
     const r = parseInt(document.getElementById('edit_stok_rusak').value, 10) || 0;
     const satuan = document.getElementById('satuan').value.trim() || 'unit';
-    editTotalBadge.textContent = `Total Aset: ${b + c + r} ${satuan}`;
+    editTotalBadge.textContent = `Total: ${b + c + r} ${satuan}`;
   }
 
   document.querySelectorAll('.edit-kondisi-input').forEach((inp) => {
@@ -420,7 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showBoxError(modalError, err.message);
     } finally {
       btnSave.disabled = false;
-      btnSave.textContent = 'Simpan Barang';
+      btnSave.textContent = 'Simpan';
     }
   });
 
@@ -433,7 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('masuk-barang-id').value = item.id;
     document.getElementById('masuk-barang-nama').textContent = `[${item.kode_barang}] ${item.nama_barang}`;
     document.getElementById('masuk-barang-info').textContent =
-      `Total Aset: ${item.stok_sistem} ${item.satuan} | Tersedia di Rak: ${item.stok_tersedia} ${item.satuan}`;
+      `Total: ${item.stok_sistem} ${item.satuan} | Tersedia di Rak: ${item.stok_tersedia} ${item.satuan}`;
     openModal(modalMasuk);
   }
 
@@ -467,7 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showBoxError(masukError, err.message);
     } finally {
       btn.disabled = false;
-      btn.textContent = '+ Simpan Barang Masuk';
+      btn.textContent = 'Simpan';
     }
   });
 
@@ -530,7 +530,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('keluar-barang-id').value = item.id;
     document.getElementById('keluar-barang-nama').textContent = `[${item.kode_barang}] ${item.nama_barang}`;
     document.getElementById('keluar-barang-info').textContent =
-      `Tersedia di Rak: ${item.stok_tersedia} ${item.satuan} (Dipinjam: ${item.stok_dipinjam}, Total Aset: ${item.stok_sistem})`;
+      `Tersedia di Rak: ${item.stok_tersedia} ${item.satuan} (Dipinjam: ${item.stok_dipinjam}, Total: ${item.stok_sistem})`;
 
     const configs = [
       { chkId: 'chk-keluar-rusak', qtyId: 'qty-keluar-rusak', availId: 'avail-keluar-rusak', count: item.stok_rusak },
@@ -614,7 +614,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showBoxError(keluarError, err.message);
     } finally {
       btn.disabled = false;
-      btn.textContent = '- Simpan Barang Keluar';
+      btn.textContent = 'Simpan';
     }
   });
 
@@ -672,7 +672,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('pinjam-barang-id').value = item.id;
     document.getElementById('pinjam-barang-nama').textContent = `[${item.kode_barang}] ${item.nama_barang}`;
     document.getElementById('pinjam-barang-info').textContent =
-      `Total Aset: ${item.stok_sistem} ${item.satuan} | Sedang Dipinjam: ${item.stok_dipinjam} ${item.satuan}`;
+      `Total: ${item.stok_sistem} ${item.satuan} | Sedang Dipinjam: ${item.stok_dipinjam} ${item.satuan}`;
 
     const badge = document.getElementById('pinjam-stok-badge');
     badge.textContent = `${item.stok_tersedia} ${item.satuan} Tersedia`;
@@ -725,7 +725,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showBoxError(pinjamError, err.message);
     } finally {
       btn.disabled = false;
-      btn.textContent = '+ Catat Pinjam';
+      btn.textContent = 'Catat';
     }
   });
 
@@ -833,6 +833,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const jumlah = parseInt(inputKondisiJumlah.value, 10);
     const keterangan = ke_kondisi === 'Baik' ? '' : inputKondisiKet.value.trim();
 
+    if (dari_kondisi === ke_kondisi) {
+      showBoxError(kondisiError, 'Kondisi awal tidak boleh sama dengan kondisi baru.');
+      return;
+    }
+
     if ((ke_kondisi === 'Cukup' || ke_kondisi === 'Rusak') && !keterangan) {
       showBoxError(kondisiError, `Keterangan wajib diisi untuk perubahan ke kondisi ${ke_kondisi}.`);
       return;
@@ -855,9 +860,47 @@ document.addEventListener('DOMContentLoaded', () => {
       showBoxError(kondisiError, err.message);
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Simpan Kondisi';
+      btn.textContent = 'Simpan';
     }
   });
+
+  function syncKondisiModalConstraints() {
+    if (!activeKondisiItem) return;
+
+    const dari = selectKondisiDari.value;
+
+    // Nonaktifkan opsi pada Kondisi Baru yang sama dengan Kondisi Awal
+    Array.from(selectKondisiKe.options).forEach((opt) => {
+      opt.disabled = opt.value === dari;
+    });
+
+    // Jika Kondisi Baru sedang bernilai sama dengan Kondisi Awal, pindahkan otomatis
+    if (selectKondisiKe.value === dari) {
+      const alternatif = ['Baik', 'Cukup', 'Rusak'].find((k) => k !== dari);
+      if (alternatif) selectKondisiKe.value = alternatif;
+    }
+
+    const ke = selectKondisiKe.value;
+    const stokMap = {
+      Baik: activeKondisiItem.stok_baik,
+      Cukup: activeKondisiItem.stok_cukup,
+      Rusak: activeKondisiItem.stok_rusak
+    };
+
+    const maxAvail = stokMap[dari] || 0;
+    inputKondisiJumlah.max = maxAvail;
+    kondisiMaxHint.textContent = `Tersedia pada kondisi ${dari}: ${maxAvail} ${activeKondisiItem.satuan}.`;
+
+    // Sembunyikan kolom keterangan jika tujuan = Baik; tampilkan & wajib jika Cukup atau Rusak
+    if (ke === 'Baik') {
+      wrapperKondisiKet.classList.add('hidden');
+      inputKondisiKet.required = false;
+      inputKondisiKet.value = '';
+    } else {
+      wrapperKondisiKet.classList.remove('hidden');
+      inputKondisiKet.required = true;
+    }
+  }
 
   // =========================================================================
   // EVENT LISTENERS UTAMA
