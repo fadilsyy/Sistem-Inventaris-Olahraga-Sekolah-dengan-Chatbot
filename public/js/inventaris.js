@@ -201,6 +201,12 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    const activeKondisiFilter = Array.from(kondisiCheckboxes)
+      .filter((chk) => chk.checked)
+      .map((chk) => chk.value);
+    const isKondisiFiltered =
+      activeKondisiFilter.length > 0 && activeKondisiFilter.length < kondisiCheckboxes.length;
+
     tableBody.innerHTML = items
       .map((item) => {
         const kategoriBadge =
@@ -221,17 +227,17 @@ document.addEventListener('DOMContentLoaded', () => {
             : `<span class="text-[11px] text-slate-400">0 Dipinjam</span>`;
 
         const kondisiBadges = [];
-        if (item.stok_baik > 0) {
+        if (item.stok_baik > 0 && (!isKondisiFiltered || activeKondisiFilter.includes('Baik'))) {
           kondisiBadges.push(
             `<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">${item.stok_baik} Baik</span>`
           );
         }
-        if (item.stok_cukup > 0) {
+        if (item.stok_cukup > 0 && (!isKondisiFiltered || activeKondisiFilter.includes('Cukup'))) {
           kondisiBadges.push(
             `<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800">${item.stok_cukup} Cukup</span>`
           );
         }
-        if (item.stok_rusak > 0) {
+        if (item.stok_rusak > 0 && (!isKondisiFiltered || activeKondisiFilter.includes('Rusak'))) {
           kondisiBadges.push(
             `<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-100 text-red-800">${item.stok_rusak} Rusak</span>`
           );
