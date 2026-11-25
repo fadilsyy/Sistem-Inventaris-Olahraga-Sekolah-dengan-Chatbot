@@ -4,7 +4,8 @@ const { sendSuccess } = require('../utils/responseHelper');
 
 const askAssistant = asyncHandler(async (req, res) => {
   const { message } = req.body;
-  const result = await chatbotService.generateReply(message, req.user);
+  const reply = await chatbotService.generateAssistantReply(message);
+  const result = { reply };
 
   return sendSuccess(res, {
     statusCode: 200,
