@@ -3,6 +3,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.location.pathname === '/login') return;
 
   const STORAGE_KEY = 'inv_or_chat_history_v1';
+  const MAX_MESSAGE_LENGTH = 500;
+  const FRIENDLY_ERROR_MESSAGE =
+    'Maaf, asisten sedang tidak dapat memproses permintaan Anda. Silakan coba lagi sebentar lagi.';
   const DEFAULT_CHIPS = [
     'Ringkasan stok gudang',
     'Barang stok menipis',
@@ -149,15 +152,40 @@ document.addEventListener('DOMContentLoaded', () => {
   const input = document.getElementById('chatbot-input');
   const sendBtn = document.getElementById('chatbot-send-btn');
 
+  // Mengunci atau membuka input, tombol kirim, seluruh chip saran, dan tombol Reset
+  function setSendingState(status) {
+    isSending = Boolean(status);
+    input.disabled = isSending;
+    sendBtn.disabled = isSending;
+    clearBtn.disabled = isSending;
+
+    input.classList.toggle('opacity-60', isSending);
+    input.classList.toggle('cursor-not-allowed', isSending);
+    sendBtn.classList.toggle('opacity-60', isSending);
+    sendBtn.classList.toggle('cursor-not-allowed', isSending);
+    clearBtn.classList.toggle('opacity-50', isSending);
+    clearBtn.classList.toggle('cursor-not-allowed', isSending);
+
+    suggestionsBox.querySelectorAll('.chatbot-chip').forEach((chip) => {
+      chip.disabled = isSending;
+      chip.classList.toggle('opacity-50', isSending);
+      chip.classList.toggle('cursor-not-allowed', isSending);
+    });
+  }
+
   function renderSuggestions(chips) {
     const activeChips = Array.isArray(chips) && chips.length > 0 ? chips : DEFAULT_CHIPS;
+    const disabledAttr = isSending ? 'disabled' : '';
+    const stateClass = isSending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer';
+
     suggestionsBox.innerHTML = activeChips
       .map(
         (text) => `
           <button
             type="button"
             data-chip="${escapeHtml(text)}"
-            class="chatbot-chip shrink-0 px-2.5 py-1 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 text-[11px] font-medium cursor-pointer transition"
+            ${disabledAttr}
+            class="chatbot-chip shrink-0 px-2.5 py-1 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 text-[11px] font-medium ${stateClass} transition"
           >
             ${escapeHtml(text)}
           </button>
@@ -206,14 +234,26 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function sendMessage(text) {
-    const cleanText = text.trim();
-    if (!cleanText || isSending) return;
+    if (isSending) return;
+
+    const cleanText = typeof text === 'string' ? text.trim() : '';
+    if (!cleanText) return;
+
+    if (cleanText.length > MAX_MESSAGE_LENGTH) {
+      messages.push({
+        sender: 'bot',
+        text: 'Pesan terlalu panjang. Maksimal 500 karakter.',
+        suggestions: DEFAULT_CHIPS
+      });
+      saveHistory(messages);
+      renderMessages();
+      return;
+    }
 
     messages.push({ sender: 'user', text: cleanText });
     saveHistory(messages);
     input.value = '';
-    isSending = true;
-    sendBtn.disabled = true;
+    setSendingState(true);
     renderMessages();
 
     try {
@@ -227,18 +267,19 @@ document.addEventListener('DOMContentLoaded', () => {
         text: res.data.reply,
         suggestions: res.data.suggestions || DEFAULT_CHIPS
       });
-    } catch (err) {
+    } catch (_) {
       messages.push({
         sender: 'bot',
-        text: `Terjadi kendala saat memproses permintaan: ${err.message}`,
+        text: FRIENDLY_ERROR_MESSAGE,
         suggestions: DEFAULT_CHIPS
       });
     } finally {
-      isSending = false;
-      sendBtn.disabled = false;
+      setSendingState(false);
       saveHistory(messages);
       renderMessages();
-      input.focus();
+      if (isOpen) {
+        input.focus();
+      }
     }
   }
 
@@ -247,7 +288,9 @@ document.addEventListener('DOMContentLoaded', () => {
     panel.classList.toggle('hidden', !isOpen);
     if (isOpen) {
       renderMessages();
-      input.focus();
+      if (!isSending) {
+        input.focus();
+      }
     }
   });
 
@@ -257,12 +300,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   clearBtn.addEventListener('click', () => {
+    if (isSending) return;
     sessionStorage.removeItem(STORAGE_KEY);
     messages = loadHistory();
     renderMessages();
   });
 
   suggestionsBox.addEventListener('click', (e) => {
+    if (isSending) return;
     const chipBtn = e.target.closest('.chatbot-chip');
     if (!chipBtn) return;
     const promptText = chipBtn.getAttribute('data-chip');
@@ -271,6 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+    if (isSending) return;
     sendMessage(input.value);
   });
 
