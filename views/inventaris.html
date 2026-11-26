@@ -3,99 +3,200 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Data Inventaris — Gudang Olahraga Sekolah</title>
+  <title>Data Inventaris â€” Sportify</title>
+  <link rel="icon" type="image/png" href="/images/logo.png">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('sportify_theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (t === 'dark' || (!t && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="/css/output.css" rel="stylesheet">
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
 
-  <!-- Top Navigation Bar (3 Menu Utama) -->
-  <header class="bg-blue-900 text-white shadow-sm sticky top-0 z-30">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-6">
-        <a href="/dashboard" class="font-bold text-base tracking-tight flex items-center gap-2">
-          <span class="bg-blue-700 px-2.5 py-1 rounded-lg text-xs font-extrabold uppercase">INV-OR</span>
-          <span>Gudang Olahraga</span>
+  <!-- Top Navigation Bar -->
+  <header class="bg-brand-950 dark:bg-slate-900 text-white border-b border-brand-900/70 dark:border-slate-800 border-t-2 border-t-accent-500 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-5 min-w-0">
+        <a href="/dashboard" class="flex items-center gap-2.5 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded-lg">
+          <span class="inline-flex items-center justify-center h-9 w-[54px] shrink-0 rounded-lg bg-[#050A14] ring-1 ring-white/15 overflow-hidden p-0.5">
+            <img src="/images/logo.png" alt="Logo Sportify" width="54" height="36" fetchpriority="high" class="h-full w-full object-contain">
+          </span>
+          <span class="flex flex-col">
+            <span class="font-display text-xl font-extrabold tracking-wide leading-none text-white">Sportify</span>
+            <span class="text-[11px] font-medium text-brand-200 leading-tight hidden sm:block">Inventaris Olahraga Sekolah</span>
+          </span>
         </a>
-        <nav class="flex items-center gap-1 text-xs sm:text-sm">
-          <a href="/dashboard" class="px-3 py-2 rounded-lg text-blue-200 hover:bg-blue-800 hover:text-white transition">Dashboard</a>
-          <a href="/inventaris" class="px-3 py-2 rounded-lg bg-blue-800 text-white font-semibold">Data Inventaris</a>
-          <a href="/riwayat" class="px-3 py-2 rounded-lg text-blue-200 hover:bg-blue-800 hover:text-white transition">Riwayat Stok</a>
+
+        <nav aria-label="Navigasi Utama" class="hidden md:flex items-center gap-1 text-sm">
+          <a href="/dashboard" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-brand-200 hover:bg-white/10 hover:text-white font-medium transition-colors duration-150">
+            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="7" height="9" rx="1.5"></rect>
+              <rect x="14" y="3" width="7" height="5" rx="1.5"></rect>
+              <rect x="14" y="12" width="7" height="9" rx="1.5"></rect>
+              <rect x="3" y="16" width="7" height="5" rx="1.5"></rect>
+            </svg>
+            <span>Dashboard</span>
+          </a>
+          <a href="/inventaris" aria-current="page" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-brand-600 text-white font-semibold shadow-sm transition-colors duration-150">
+            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
+              <path d="m3.3 7 8.7 5 8.7-5M12 22V12"></path>
+            </svg>
+            <span>Data Inventaris</span>
+          </a>
+          <a href="/riwayat" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-brand-200 hover:bg-white/10 hover:text-white font-medium transition-colors duration-150">
+            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path>
+              <path d="M3 3v5h5"></path>
+              <path d="M12 7v5l3 2"></path>
+            </svg>
+            <span>Riwayat Stok</span>
+          </a>
         </nav>
       </div>
 
-      <div class="flex items-center gap-3">
-        <span id="nav-user-name" class="hidden sm:inline text-xs text-blue-200 font-medium">Petugas Gudang</span>
-        <button id="btn-logout" class="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-xs font-semibold text-white cursor-pointer transition">
-          Logout
+      <div class="flex items-center gap-2 shrink-0">
+        <button
+          type="button"
+          id="btn-theme-toggle"
+          aria-label="Aktifkan mode gelap"
+          aria-pressed="false"
+          class="inline-flex items-center justify-center min-h-[40px] min-w-[40px] rounded-xl bg-white/10 hover:bg-white/20 text-brand-100 transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+        >
+          <svg data-theme-icon="sun" class="hidden w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+          </svg>
+          <svg data-theme-icon="moon" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79Z"></path>
+          </svg>
+        </button>
+
+        <span class="hidden sm:inline-flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium text-brand-100">
+          <svg class="w-3.5 h-3.5 text-brand-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span id="nav-user-name" class="truncate max-w-[140px]">Petugas Gudang</span>
+        </span>
+
+        <button id="btn-logout" type="button" class="inline-flex items-center gap-1.5 min-h-[40px] px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 active:bg-red-800 text-xs font-semibold text-white transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Logout</span>
         </button>
       </div>
     </div>
+
+    <!-- Mobile Navigation Row -->
+    <nav aria-label="Navigasi Mobile" class="md:hidden border-t border-white/10 px-3 py-1.5 grid grid-cols-3 gap-1.5 text-xs">
+      <a href="/dashboard" class="min-h-[44px] flex items-center justify-center px-2 rounded-lg text-brand-200 hover:bg-white/10 hover:text-white font-medium text-center">
+        <span>Dashboard</span>
+      </a>
+      <a href="/inventaris" aria-current="page" class="min-h-[44px] flex items-center justify-center px-2 rounded-lg bg-brand-600 text-white font-semibold text-center">
+        <span>Inventaris</span>
+      </a>
+      <a href="/riwayat" class="min-h-[44px] flex items-center justify-center px-2 rounded-lg text-brand-200 hover:bg-white/10 hover:text-white font-medium text-center">
+        <span>Riwayat</span>
+      </a>
+    </nav>
   </header>
 
   <!-- Main Content -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
 
     <!-- Page Title & Primary Action -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <section class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-200 dark:border-slate-800">
       <div>
-        <h1 class="text-2xl font-bold text-slate-900">Manajemen Data Inventaris</h1>
-        <p class="text-sm text-slate-600 mt-0.5">Kelola aset perlengkapan olahraga, peminjaman, dan kondisi.</p>
-      </div>
-      <button
-        id="btn-open-create"
-        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white text-sm font-semibold shadow-sm cursor-pointer transition"
-      >
-        <span>+ Tambah Barang</span>
-      </button>
-    </div>
-
-    <!-- Alert Notification -->
-    <div id="toast-alert" class="hidden px-4 py-3 rounded-xl text-sm font-medium border shadow-sm"></div>
-
-    <!-- 5 Summary Cards -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-        <p class="text-xs font-medium text-slate-500">Total Jenis Barang</p>
-        <p id="stat-total-jenis" class="text-2xl font-bold text-slate-900 mt-1">0</p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-        <p class="text-xs font-medium text-slate-500">Total Unit</p>
-        <p id="stat-total-aset" class="text-2xl font-bold text-blue-800 mt-1">0</p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-        <p class="text-xs font-medium text-slate-500">Tersedia</p>
-        <p id="stat-total-tersedia" class="text-2xl font-bold text-emerald-700 mt-1">0</p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-        <p class="text-xs font-medium text-slate-500">Dipinjam</p>
-        <p id="stat-total-dipinjam" class="text-2xl font-bold text-amber-600 mt-1">0</p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm col-span-2 sm:col-span-1">
-        <p class="text-xs font-medium text-slate-500">Rusak / Cukup</p>
-        <p class="text-xl font-bold text-red-600 mt-1">
-          <span id="stat-total-rusak">0</span> <span class="text-xs font-normal text-slate-500">Rusak</span>
-          <span class="text-slate-300 mx-1">/</span>
-          <span id="stat-total-cukup" class="text-amber-600">0</span> <span class="text-xs font-normal text-slate-500">Cukup</span>
+        <h1 class="font-display text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
+          Manajemen Data Inventaris
+        </h1>
+        <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+          Kelola aset perlengkapan olahraga, mutasi stok, sirkulasi peminjaman, dan kondisi fisik unit.
         </p>
       </div>
-    </div>
+      <button
+        type="button"
+        id="btn-open-create"
+        class="sp-btn-primary min-h-[44px] shrink-0"
+      >
+        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 5v14M5 12h14"></path>
+        </svg>
+        <span>Tambah Barang</span>
+      </button>
+    </section>
+
+    <!-- Alert Notification -->
+    <div id="toast-alert" role="status" aria-live="polite" class="hidden px-4 py-3 rounded-xl text-sm font-medium border shadow-sm"></div>
+
+    <!-- 5 Summary Cards -->
+    <section aria-label="Ringkasan Inventaris" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+      <article class="sp-card p-4">
+        <p class="text-xs font-semibold text-slate-600 dark:text-slate-400">Total Jenis Barang</p>
+        <p id="stat-total-jenis" class="kpi-num font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1.5">0</p>
+      </article>
+      <article class="sp-card p-4">
+        <p class="text-xs font-semibold text-slate-600 dark:text-slate-400">Total Unit</p>
+        <p id="stat-total-aset" class="kpi-num font-display text-2xl sm:text-3xl font-extrabold text-brand-700 dark:text-brand-400 mt-1.5">0</p>
+      </article>
+      <article class="sp-card p-4">
+        <p class="text-xs font-semibold text-slate-600 dark:text-slate-400">Tersedia</p>
+        <p id="stat-total-tersedia" class="kpi-num font-display text-2xl sm:text-3xl font-extrabold text-emerald-700 dark:text-emerald-400 mt-1.5">0</p>
+      </article>
+      <article class="sp-card p-4">
+        <p class="text-xs font-semibold text-slate-600 dark:text-slate-400">Dipinjam</p>
+        <p id="stat-total-dipinjam" class="kpi-num font-display text-2xl sm:text-3xl font-extrabold text-amber-700 dark:text-amber-400 mt-1.5">0</p>
+      </article>
+      <article class="sp-card p-4 col-span-2 sm:col-span-1">
+        <p class="text-xs font-semibold text-slate-600 dark:text-slate-400">Rusak / Cukup</p>
+        <p class="kpi-num mt-1.5 flex items-baseline flex-wrap gap-x-1.5">
+          <span id="stat-total-rusak" class="font-display text-2xl font-extrabold text-red-700 dark:text-red-400">0</span>
+          <span class="text-xs font-medium text-slate-600 dark:text-slate-400">Rusak</span>
+          <span class="text-slate-300 dark:text-slate-600">/</span>
+          <span id="stat-total-cukup" class="font-display text-2xl font-extrabold text-amber-700 dark:text-amber-400">0</span>
+          <span class="text-xs font-medium text-slate-600 dark:text-slate-400">Cukup</span>
+        </p>
+      </article>
+    </section>
 
     <!-- Search & Multi-Filter Bar -->
-    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+    <section aria-label="Pencarian dan Filter Inventaris" class="sp-card p-4">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         <div class="lg:col-span-2">
-          <label for="filter-search" class="block text-xs font-semibold text-slate-600 mb-1">Cari Nama / Kode Barang</label>
-          <input
-            type="text"
-            id="filter-search"
-            placeholder="Contoh: Bola Basket atau B-001"
-            class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
-          >
+          <label for="filter-search" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Cari Nama / Kode Barang</label>
+          <div class="relative">
+            <svg class="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+            <input
+              type="text"
+              id="filter-search"
+              placeholder="Contoh: Bola Basket atau B-001"
+              class="sp-input pl-9 min-h-[40px] placeholder:text-slate-500 dark:placeholder:text-slate-400"
+            >
+          </div>
         </div>
 
         <div>
-          <label for="filter-kategori" class="block text-xs font-semibold text-slate-600 mb-1">Kategori</label>
-          <select id="filter-kategori" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600">
+          <label for="filter-kategori" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Kategori</label>
+          <select id="filter-kategori" class="sp-select min-h-[40px]">
             <option value="">Semua Kategori</option>
             <option value="Sport">Sport</option>
             <option value="Non-Sport">Non-Sport</option>
@@ -103,27 +204,27 @@
         </div>
 
         <div>
-          <span class="block text-xs font-semibold text-slate-600 mb-1">Kondisi</span>
-          <div id="filter-kondisi-group" class="flex items-center justify-between gap-2 px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white">
-            <label class="inline-flex items-center gap-1.5 cursor-pointer text-slate-700 font-medium">
-              <input type="checkbox" value="Baik" class="chk-filter-kondisi rounded text-emerald-700 focus:ring-emerald-600">
+          <span class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Kondisi</span>
+          <fieldset id="filter-kondisi-group" class="flex items-center justify-between gap-2 px-3 py-2 min-h-[40px] text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950">
+            <label class="inline-flex items-center gap-1.5 text-slate-700 dark:text-slate-200 font-medium">
+              <input type="checkbox" value="Baik" class="chk-filter-kondisi rounded border-slate-300 dark:border-slate-600 text-emerald-700 focus:ring-emerald-600">
               <span>Baik</span>
             </label>
-            <label class="inline-flex items-center gap-1.5 cursor-pointer text-slate-700 font-medium">
-              <input type="checkbox" value="Cukup" class="chk-filter-kondisi rounded text-amber-600 focus:ring-amber-600">
+            <label class="inline-flex items-center gap-1.5 text-slate-700 dark:text-slate-200 font-medium">
+              <input type="checkbox" value="Cukup" class="chk-filter-kondisi rounded border-slate-300 dark:border-slate-600 text-amber-600 focus:ring-amber-600">
               <span>Cukup</span>
             </label>
-            <label class="inline-flex items-center gap-1.5 cursor-pointer text-slate-700 font-medium">
-              <input type="checkbox" value="Rusak" class="chk-filter-kondisi rounded text-red-600 focus:ring-red-600">
+            <label class="inline-flex items-center gap-1.5 text-slate-700 dark:text-slate-200 font-medium">
+              <input type="checkbox" value="Rusak" class="chk-filter-kondisi rounded border-slate-300 dark:border-slate-600 text-red-600 focus:ring-red-600">
               <span>Rusak</span>
             </label>
-          </div>
+          </fieldset>
         </div>
 
         <div>
-          <label for="filter-status-stok" class="block text-xs font-semibold text-slate-600 mb-1">Status</label>
+          <label for="filter-status-stok" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Status</label>
           <div class="flex gap-2">
-            <select id="filter-status-stok" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600">
+            <select id="filter-status-stok" class="sp-select min-h-[40px]">
               <option value="" selected>Semua</option>
               <option value="TERSEDIA">Tersedia</option>
               <option value="DIPINJAM">Dipinjam</option>
@@ -132,169 +233,206 @@
               type="button"
               id="btn-reset-filter"
               title="Reset Filter"
-              class="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 cursor-pointer"
+              class="sp-btn-secondary px-3 py-2 text-xs min-h-[40px] shrink-0"
             >
               Reset
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- Inventory Table -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <section class="sp-card overflow-hidden">
+      <header class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <h2 class="font-display text-lg font-bold text-slate-900 dark:text-white tracking-tight">Daftar Perlengkapan Olahraga</h2>
+      </header>
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-600">
-              <th class="py-3.5 px-4">Kode</th>
-              <th class="py-3.5 px-4">Nama Barang &amp; Deskripsi</th>
-              <th class="py-3.5 px-4">Kategori</th>
-              <th class="py-3.5 px-4">Rincian Stok</th>
-              <th class="py-3.5 px-4">Kondisi</th>
-              <th class="py-3.5 px-4 text-right">Actions</th>
+            <tr class="bg-slate-50 dark:bg-slate-800/70 border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
+              <th scope="col" class="py-3.5 px-4">Kode</th>
+              <th scope="col" class="py-3.5 px-4">Nama Barang &amp; Deskripsi</th>
+              <th scope="col" class="py-3.5 px-4">Kategori</th>
+              <th scope="col" class="py-3.5 px-4">Rincian Stok</th>
+              <th scope="col" class="py-3.5 px-4">Kondisi</th>
+              <th scope="col" class="py-3.5 px-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody id="barang-table-body" class="divide-y divide-slate-200 text-sm">
+          <tbody id="barang-table-body" class="divide-y divide-slate-200 dark:divide-slate-800 text-sm">
             <tr>
-              <td colspan="6" class="py-8 text-center text-slate-500">Memuat data inventaris...</td>
+              <td class="py-4 px-4"><span class="block h-4 w-16 sp-skeleton"></span></td>
+              <td class="py-4 px-4"><span class="block h-4 w-40 sp-skeleton"></span></td>
+              <td class="py-4 px-4"><span class="block h-5 w-16 rounded-full sp-skeleton"></span></td>
+              <td class="py-4 px-4"><span class="block h-4 w-28 sp-skeleton"></span></td>
+              <td class="py-4 px-4"><span class="block h-5 w-24 rounded-full sp-skeleton"></span></td>
+              <td class="py-4 px-4"><span class="block h-7 w-48 ml-auto sp-skeleton"></span></td>
+            </tr>
+            <tr>
+              <td class="py-4 px-4"><span class="block h-4 w-16 sp-skeleton"></span></td>
+              <td class="py-4 px-4"><span class="block h-4 w-36 sp-skeleton"></span></td>
+              <td class="py-4 px-4"><span class="block h-5 w-16 rounded-full sp-skeleton"></span></td>
+              <td class="py-4 px-4"><span class="block h-4 w-28 sp-skeleton"></span></td>
+              <td class="py-4 px-4"><span class="block h-5 w-24 rounded-full sp-skeleton"></span></td>
+              <td class="py-4 px-4"><span class="block h-7 w-48 ml-auto sp-skeleton"></span></td>
             </tr>
           </tbody>
         </table>
       </div>
-    </div>
+    </section>
   </main>
 
   <!-- ======================================================================= -->
   <!-- MODAL 1: TAMBAH / EDIT BARANG INVENTARIS                                -->
   <!-- ======================================================================= -->
-  <div id="modal-barang" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-      <div class="px-6 py-4 bg-blue-900 text-white flex items-center justify-between">
-        <h2 id="modal-title" class="text-base font-bold">Tambah Barang Inventaris Baru</h2>
-        <button type="button" data-close-modal="modal-barang" class="text-blue-200 hover:text-white text-xl leading-none cursor-pointer">&times;</button>
-      </div>
+  <div id="modal-barang" role="dialog" aria-modal="true" aria-labelledby="modal-title" class="hidden fixed inset-0 z-50 bg-slate-950/65 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="sp-modal-panel bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+      <header class="px-6 py-4 bg-brand-950 dark:bg-slate-800 text-white border-b border-brand-900 dark:border-slate-700 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-lg bg-brand-600/30 border border-brand-400/30 inline-flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4 text-brand-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
+              <path d="m3.3 7 8.7 5 8.7-5M12 22V12"></path>
+            </svg>
+          </span>
+          <h2 id="modal-title" class="font-display text-lg font-bold">Tambah Barang Inventaris Baru</h2>
+        </div>
+        <button type="button" data-close-modal="modal-barang" aria-label="Tutup modal barang" class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </header>
 
       <form id="form-barang" class="p-6 space-y-4 text-sm max-h-[85vh] overflow-y-auto">
         <input type="hidden" id="barang-id">
 
-        <div id="modal-error" class="hidden p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs"></div>
+        <p id="modal-error" role="alert" class="hidden p-3 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/70 text-red-700 dark:text-red-300 text-xs font-medium"></p>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label for="kode_barang" class="block font-semibold text-slate-700 mb-1">Kode Barang <span class="text-red-500">*</span></label>
-            <input type="text" id="kode_barang" required placeholder="Contoh: SPT-001" class="w-full px-3 py-2 rounded-lg border border-slate-300 uppercase focus:outline-none focus:ring-2 focus:ring-blue-600">
+            <label for="kode_barang" class="block font-semibold text-slate-700 dark:text-slate-200 mb-1.5">Kode Barang <span class="text-red-600 dark:text-red-400">*</span></label>
+            <input type="text" id="kode_barang" required placeholder="Contoh: SPT-001" class="sp-input uppercase font-mono placeholder:text-slate-500 dark:placeholder:text-slate-400">
           </div>
           <div>
-            <label for="nama_barang" class="block font-semibold text-slate-700 mb-1">Nama Barang <span class="text-red-500">*</span></label>
-            <input type="text" id="nama_barang" required placeholder="Contoh: Bola Basket Molten" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600">
+            <label for="nama_barang" class="block font-semibold text-slate-700 dark:text-slate-200 mb-1.5">Nama Barang <span class="text-red-600 dark:text-red-400">*</span></label>
+            <input type="text" id="nama_barang" required placeholder="Contoh: Bola Basket Molten" class="sp-input placeholder:text-slate-500 dark:placeholder:text-slate-400">
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label for="kategori" class="block font-semibold text-slate-700 mb-1">Kategori <span class="text-red-500">*</span></label>
-            <select id="kategori" required class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600">
+            <label for="kategori" class="block font-semibold text-slate-700 dark:text-slate-200 mb-1.5">Kategori <span class="text-red-600 dark:text-red-400">*</span></label>
+            <select id="kategori" required class="sp-select">
               <option value="Sport">Sport</option>
               <option value="Non-Sport">Non-Sport</option>
             </select>
           </div>
           <div>
-            <label for="satuan" class="block font-semibold text-slate-700 mb-1">Satuan <span class="text-red-500">*</span></label>
-            <input type="text" id="satuan" required placeholder="unit / pcs / set" value="unit" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600">
+            <label for="satuan" class="block font-semibold text-slate-700 dark:text-slate-200 mb-1.5">Satuan <span class="text-red-600 dark:text-red-400">*</span></label>
+            <input type="text" id="satuan" required placeholder="unit / pcs / set" value="unit" class="sp-input placeholder:text-slate-500 dark:placeholder:text-slate-400">
           </div>
         </div>
 
-        <p id="kategori-hint" class="text-xs text-blue-800 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
+        <p id="kategori-hint" class="text-xs text-brand-800 dark:text-brand-200 bg-brand-50 dark:bg-brand-950/60 border border-brand-200 dark:border-brand-800/70 rounded-xl px-3.5 py-2.5 leading-relaxed">
           Contoh: Bola (basket, futsal, voli, sepak bola), raket badminton, bet tenis meja, shuttlecock, net dan perlengkapan latihan olahraga utama.
         </p>
 
         <!-- Mode Tambah Baru: Input Stok Awal (Default Baik) -->
         <div id="create-stok-wrapper">
-          <label for="stok_sistem" class="block font-semibold text-slate-700 mb-1">Stok Awal <span class="text-red-500">*</span></label>
-          <input type="number" id="stok_sistem" min="0" value="0" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600">
+          <label for="stok_sistem" class="block font-semibold text-slate-700 dark:text-slate-200 mb-1.5">Stok Awal <span class="text-red-600 dark:text-red-400">*</span></label>
+          <input type="number" id="stok_sistem" min="0" value="0" class="sp-input">
         </div>
 
         <!-- Mode Edit: Rincian Unit per Kondisi -->
-        <div id="edit-kondisi-wrapper" class="hidden space-y-2 p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+        <fieldset id="edit-kondisi-wrapper" class="hidden space-y-2.5 py-3 border-y border-slate-200 dark:border-slate-800">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-700">Kondisi</span>
-            <span id="edit-total-badge" class="text-xs font-bold text-blue-800">Total: 0</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">Kondisi</span>
+            <span id="edit-total-badge" class="text-xs font-bold text-brand-700 dark:text-brand-300 kpi-num">Total: 0</span>
           </div>
           <div class="grid grid-cols-3 gap-3">
             <div>
-              <label for="edit_stok_baik" class="block text-xs font-semibold text-emerald-800 mb-1">Baik</label>
-              <input type="number" id="edit_stok_baik" min="0" value="0" class="edit-kondisi-input w-full px-2.5 py-1.5 rounded-lg border border-emerald-300 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600">
+              <label for="edit_stok_baik" class="block text-xs font-semibold text-emerald-800 dark:text-emerald-300 mb-1">Baik</label>
+              <input type="number" id="edit_stok_baik" min="0" value="0" class="edit-kondisi-input w-full px-2.5 py-1.5 rounded-lg border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-600">
             </div>
             <div>
-              <label for="edit_stok_cukup" class="block text-xs font-semibold text-amber-800 mb-1">Cukup</label>
-              <input type="number" id="edit_stok_cukup" min="0" value="0" class="edit-kondisi-input w-full px-2.5 py-1.5 rounded-lg border border-amber-300 bg-white focus:outline-none focus:ring-2 focus:ring-amber-600">
+              <label for="edit_stok_cukup" class="block text-xs font-semibold text-amber-800 dark:text-amber-300 mb-1">Cukup</label>
+              <input type="number" id="edit_stok_cukup" min="0" value="0" class="edit-kondisi-input w-full px-2.5 py-1.5 rounded-lg border border-amber-300 dark:border-amber-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-600">
             </div>
             <div>
-              <label for="edit_stok_rusak" class="block text-xs font-semibold text-red-800 mb-1">Rusak</label>
-              <input type="number" id="edit_stok_rusak" min="0" value="0" class="edit-kondisi-input w-full px-2.5 py-1.5 rounded-lg border border-red-300 bg-white focus:outline-none focus:ring-2 focus:ring-red-600">
+              <label for="edit_stok_rusak" class="block text-xs font-semibold text-red-800 dark:text-red-300 mb-1">Rusak</label>
+              <input type="number" id="edit_stok_rusak" min="0" value="0" class="edit-kondisi-input w-full px-2.5 py-1.5 rounded-lg border border-red-300 dark:border-red-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-600">
             </div>
           </div>
-          <p id="edit-stok-note" class="hidden text-[11px] text-amber-700 font-medium"></p>
-        </div>
+          <p id="edit-stok-note" class="hidden text-[11px] text-amber-800 dark:text-amber-300 font-medium"></p>
+        </fieldset>
 
         <div>
-          <label for="deskripsi" class="block font-semibold text-slate-700 mb-1">Keterangan</label>
-          <textarea id="deskripsi" rows="2" placeholder="Opsional: merek, ukuran, lokasi rak penyimpanan..." class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600"></textarea>
+          <label for="deskripsi" class="block font-semibold text-slate-700 dark:text-slate-200 mb-1.5">Keterangan</label>
+          <textarea id="deskripsi" rows="2" placeholder="Opsional: merek, ukuran, lokasi rak penyimpanan..." class="sp-input placeholder:text-slate-500 dark:placeholder:text-slate-400"></textarea>
         </div>
 
-        <div class="pt-3 border-t border-slate-200 flex items-center justify-end gap-2">
-          <button type="button" data-close-modal="modal-barang" class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-medium hover:bg-slate-50 cursor-pointer">
+        <footer class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2.5">
+          <button type="button" data-close-modal="modal-barang" class="sp-btn-secondary py-2 px-4 text-sm">
             Batal
           </button>
-          <button type="submit" id="btn-save-barang" class="px-5 py-2 rounded-lg bg-blue-800 hover:bg-blue-900 text-white font-semibold cursor-pointer">
+          <button type="submit" id="btn-save-barang" class="sp-btn-primary py-2 px-5 text-sm">
             Simpan Barang
           </button>
-        </div>
+        </footer>
       </form>
     </div>
   </div>
 
   <!-- ======================================================================= -->
-  <!-- MODAL 2: BARANG MASUK (IN — DEFAULT KONDISI BAIK)                       -->
+  <!-- MODAL 2: BARANG MASUK (IN â€” DEFAULT KONDISI BAIK)                       -->
   <!-- ======================================================================= -->
-  <div id="modal-masuk" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-      <div class="px-6 py-4 bg-emerald-800 text-white flex items-center justify-between">
-        <div>
-          <h2 class="text-base font-bold mt-0.5">Catat Barang Masuk</h2>
+  <div id="modal-masuk" role="dialog" aria-modal="true" aria-labelledby="modal-masuk-title" class="hidden fixed inset-0 z-50 bg-slate-950/65 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="sp-modal-panel bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+      <header class="px-6 py-4 bg-emerald-800 dark:bg-emerald-950 text-white border-b border-emerald-700 dark:border-emerald-800 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-lg bg-white/15 inline-flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4 text-emerald-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 5v14M5 12l7 7 7-7"></path>
+            </svg>
+          </span>
+          <h2 id="modal-masuk-title" class="font-display text-lg font-bold">Catat Barang Masuk</h2>
         </div>
-        <button type="button" data-close-modal="modal-masuk" class="text-emerald-200 hover:text-white text-xl leading-none cursor-pointer">&times;</button>
-      </div>
+        <button type="button" data-close-modal="modal-masuk" aria-label="Tutup modal barang masuk" class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-emerald-100 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </header>
 
       <form id="form-masuk" class="p-6 space-y-4 text-sm">
         <input type="hidden" id="masuk-barang-id">
 
-        <div id="masuk-error" class="hidden p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs"></div>
+        <p id="masuk-error" role="alert" class="hidden p-3 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/70 text-red-700 dark:text-red-300 text-xs font-medium"></p>
 
-        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-          <p id="masuk-barang-nama" class="font-bold text-slate-900">-</p>
-          <p id="masuk-barang-info" class="text-xs text-slate-600">-</p>
+        <div class="pb-3 border-b border-slate-200 dark:border-slate-800 space-y-1">
+          <p id="masuk-barang-nama" class="font-bold text-slate-900 dark:text-white">-</p>
+          <p id="masuk-barang-info" class="text-xs text-slate-600 dark:text-slate-400 kpi-num">-</p>
         </div>
 
         <div>
-          <label for="masuk-jumlah" class="block font-semibold text-slate-700 mb-1">Jumlah Unit Masuk <span class="text-red-500">*</span></label>
-          <input type="number" id="masuk-jumlah" min="1" step="1" required placeholder="Masukkan jumlah unit" class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+          <label for="masuk-jumlah" class="block font-semibold text-slate-700 dark:text-slate-200 mb-1.5">Jumlah Unit Masuk <span class="text-red-600 dark:text-red-400">*</span></label>
+          <input type="number" id="masuk-jumlah" min="1" step="1" required placeholder="Masukkan jumlah unit" class="sp-input placeholder:text-slate-500 dark:placeholder:text-slate-400">
         </div>
 
         <div>
-          <label for="masuk-keterangan" class="block font-semibold text-slate-700 mb-1">Sumber / Keterangan Masuk <span class="text-red-500">*</span></label>
-          <textarea id="masuk-keterangan" rows="2" required placeholder="Contoh: Pengadaan Dana BOS / Donasi Alumni" class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-600"></textarea>
+          <label for="masuk-keterangan" class="block font-semibold text-slate-700 dark:text-slate-200 mb-1.5">Sumber / Keterangan Masuk <span class="text-red-600 dark:text-red-400">*</span></label>
+          <textarea id="masuk-keterangan" rows="2" required placeholder="Contoh: Pengadaan Dana BOS / Donasi Alumni" class="sp-input placeholder:text-slate-500 dark:placeholder:text-slate-400"></textarea>
         </div>
 
-        <div class="pt-3 border-t border-slate-200 flex items-center justify-end gap-2">
-          <button type="button" data-close-modal="modal-masuk" class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-medium hover:bg-slate-50 cursor-pointer">
+        <footer class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2.5">
+          <button type="button" data-close-modal="modal-masuk" class="sp-btn-secondary py-2 px-4 text-sm">
             Batal
           </button>
-          <button type="submit" id="btn-submit-masuk" class="px-5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold cursor-pointer">
+          <button type="submit" id="btn-submit-masuk" class="px-5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-600 dark:focus-visible:ring-offset-slate-900">
             Simpan
           </button>
-        </div>
+        </footer>
       </form>
     </div>
   </div>
@@ -302,112 +440,121 @@
   <!-- ======================================================================= -->
   <!-- MODAL 3: BARANG KELUAR (OUT) DENGAN CHECKBOX KONDISI & RADIO ALASAN     -->
   <!-- ======================================================================= -->
-  <div id="modal-keluar" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-      <div class="px-6 py-4 bg-red-800 text-white flex items-center justify-between">
-        <div>
-          <h2 class="text-base font-bold mt-0.5">Catat Barang Keluar</h2>
+  <div id="modal-keluar" role="dialog" aria-modal="true" aria-labelledby="modal-keluar-title" class="hidden fixed inset-0 z-50 bg-slate-950/65 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="sp-modal-panel bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+      <header class="px-6 py-4 bg-red-800 dark:bg-red-950 text-white border-b border-red-700 dark:border-red-800 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-lg bg-white/15 inline-flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4 text-red-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 19V5M5 12l7-7 7 7"></path>
+            </svg>
+          </span>
+          <h2 id="modal-keluar-title" class="font-display text-lg font-bold">Catat Barang Keluar</h2>
         </div>
-        <button type="button" data-close-modal="modal-keluar" class="text-red-200 hover:text-white text-xl leading-none cursor-pointer">&times;</button>
-      </div>
+        <button type="button" data-close-modal="modal-keluar" aria-label="Tutup modal barang keluar" class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-red-100 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </header>
 
       <form id="form-keluar" class="p-6 space-y-4 text-sm max-h-[85vh] overflow-y-auto">
         <input type="hidden" id="keluar-barang-id">
 
-        <div id="keluar-error" class="hidden p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs"></div>
+        <p id="keluar-error" role="alert" class="hidden p-3 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/70 text-red-700 dark:text-red-300 text-xs font-medium"></p>
 
-        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-          <p id="keluar-barang-nama" class="font-bold text-slate-900">-</p>
-          <p id="keluar-barang-info" class="text-xs text-slate-600">-</p>
+        <div class="pb-3 border-b border-slate-200 dark:border-slate-800 space-y-1">
+          <p id="keluar-barang-nama" class="font-bold text-slate-900 dark:text-white">-</p>
+          <p id="keluar-barang-info" class="text-xs text-slate-600 dark:text-slate-400 kpi-num">-</p>
         </div>
 
         <!-- Checkbox Pemilihan Kondisi & Jumlah Unit per Kondisi -->
         <div>
-          <div class="flex items-center justify-between mb-2">
-            <span class="font-semibold text-slate-700">Pilih Kondisi &amp; Jumlah Unit Keluar <span class="text-red-500">*</span></span>
-            <span id="keluar-total-pill" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-200 text-slate-800">
+          <div class="flex items-center justify-between mb-2 gap-2">
+            <span class="font-semibold text-slate-700 dark:text-slate-200">Pilih Kondisi &amp; Jumlah Unit Keluar <span class="text-red-600 dark:text-red-400">*</span></span>
+            <span id="keluar-total-pill" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 kpi-num">
               Total Keluar: 0
             </span>
           </div>
 
-          <div class="space-y-2 rounded-xl border border-slate-200 p-3 bg-slate-50/70">
+          <fieldset class="space-y-2 py-2.5 border-y border-slate-200 dark:border-slate-800">
             <!-- Checkbox Rusak -->
             <div class="flex items-center justify-between gap-3">
-              <label class="flex items-center gap-2.5 cursor-pointer text-slate-800">
-                <input type="checkbox" id="chk-keluar-rusak" class="chk-keluar-kondisi rounded text-red-700 focus:ring-red-600" data-target="qty-keluar-rusak">
-                <span> <strong class="text-red-700">Rusak</strong> <span id="avail-keluar-rusak" class="text-xs text-slate-500">(0 unit)</span></span>
+              <label class="flex items-center gap-2.5 text-slate-800 dark:text-slate-200">
+                <input type="checkbox" id="chk-keluar-rusak" class="chk-keluar-kondisi rounded border-slate-300 dark:border-slate-600 text-red-700 focus:ring-red-600" data-target="qty-keluar-rusak">
+                <span><strong class="text-red-700 dark:text-red-400">Rusak</strong> <span id="avail-keluar-rusak" class="text-xs text-slate-600 dark:text-slate-400">(0 unit)</span></span>
               </label>
-              <input type="number" id="qty-keluar-rusak" min="1" value="0" disabled class="qty-keluar-input w-24 px-2.5 py-1 text-right text-sm rounded-lg border border-slate-300 bg-slate-100 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-red-600">
+              <input type="number" id="qty-keluar-rusak" min="1" value="0" disabled class="qty-keluar-input w-24 px-2.5 py-1.5 text-right text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-red-600">
             </div>
 
             <!-- Checkbox Cukup -->
             <div class="flex items-center justify-between gap-3">
-              <label class="flex items-center gap-2.5 cursor-pointer text-slate-800">
-                <input type="checkbox" id="chk-keluar-cukup" class="chk-keluar-kondisi rounded text-red-700 focus:ring-red-600" data-target="qty-keluar-cukup">
-                <span> <strong class="text-amber-700">Cukup</strong> <span id="avail-keluar-cukup" class="text-xs text-slate-500">(0 unit)</span></span>
+              <label class="flex items-center gap-2.5 text-slate-800 dark:text-slate-200">
+                <input type="checkbox" id="chk-keluar-cukup" class="chk-keluar-kondisi rounded border-slate-300 dark:border-slate-600 text-red-700 focus:ring-red-600" data-target="qty-keluar-cukup">
+                <span><strong class="text-amber-700 dark:text-amber-400">Cukup</strong> <span id="avail-keluar-cukup" class="text-xs text-slate-600 dark:text-slate-400">(0 unit)</span></span>
               </label>
-              <input type="number" id="qty-keluar-cukup" min="1" value="0" disabled class="qty-keluar-input w-24 px-2.5 py-1 text-right text-sm rounded-lg border border-slate-300 bg-slate-100 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-red-600">
+              <input type="number" id="qty-keluar-cukup" min="1" value="0" disabled class="qty-keluar-input w-24 px-2.5 py-1.5 text-right text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-red-600">
             </div>
 
             <!-- Checkbox Baik -->
             <div class="flex items-center justify-between gap-3">
-              <label class="flex items-center gap-2.5 cursor-pointer text-slate-800">
-                <input type="checkbox" id="chk-keluar-baik" class="chk-keluar-kondisi rounded text-red-700 focus:ring-red-600" data-target="qty-keluar-baik">
-                <span> <strong class="text-emerald-700">Baik</strong> <span id="avail-keluar-baik" class="text-xs text-slate-500">(0 unit)</span></span>
+              <label class="flex items-center gap-2.5 text-slate-800 dark:text-slate-200">
+                <input type="checkbox" id="chk-keluar-baik" class="chk-keluar-kondisi rounded border-slate-300 dark:border-slate-600 text-red-700 focus:ring-red-600" data-target="qty-keluar-baik">
+                <span><strong class="text-emerald-700 dark:text-emerald-400">Baik</strong> <span id="avail-keluar-baik" class="text-xs text-slate-600 dark:text-slate-400">(0 unit)</span></span>
               </label>
-              <input type="number" id="qty-keluar-baik" min="1" value="0" disabled class="qty-keluar-input w-24 px-2.5 py-1 text-right text-sm rounded-lg border border-slate-300 bg-slate-100 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-red-600">
+              <input type="number" id="qty-keluar-baik" min="1" value="0" disabled class="qty-keluar-input w-24 px-2.5 py-1.5 text-right text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-red-600">
             </div>
-          </div>
+          </fieldset>
         </div>
 
         <!-- Radio Button Alasan Template + Opsi Lainnya -->
         <div>
-          <span class="block font-semibold text-slate-700 mb-2">Alasan Pengurangan Stok <span class="text-red-500">*</span></span>
-          <div class="space-y-2 rounded-xl border border-slate-200 p-3 bg-slate-50/70">
-            <label class="flex items-center gap-2.5 cursor-pointer text-slate-800">
+          <span class="block font-semibold text-slate-700 dark:text-slate-200 mb-2">Alasan Pengurangan Stok <span class="text-red-600 dark:text-red-400">*</span></span>
+          <fieldset class="space-y-2 py-1">
+            <label class="flex items-center gap-2.5 text-slate-800 dark:text-slate-200">
               <input type="radio" name="alasan_template" value="Rusak berat / tidak layak pakai" required class="text-red-700 focus:ring-red-600">
               <span>Rusak berat / tidak layak pakai</span>
             </label>
-            <label class="flex items-center gap-2.5 cursor-pointer text-slate-800">
+            <label class="flex items-center gap-2.5 text-slate-800 dark:text-slate-200">
               <input type="radio" name="alasan_template" value="Hilang saat kegiatan" class="text-red-700 focus:ring-red-600">
               <span>Hilang saat kegiatan</span>
             </label>
-            <label class="flex items-center gap-2.5 cursor-pointer text-slate-800">
+            <label class="flex items-center gap-2.5 text-slate-800 dark:text-slate-200">
               <input type="radio" name="alasan_template" value="Habis pakai (consumable)" class="text-red-700 focus:ring-red-600">
               <span>Habis pakai (consumable)</span>
             </label>
-            <label class="flex items-center gap-2.5 cursor-pointer text-slate-800">
+            <label class="flex items-center gap-2.5 text-slate-800 dark:text-slate-200">
               <input type="radio" name="alasan_template" value="Dihibahkan / dipindahtangankan" class="text-red-700 focus:ring-red-600">
               <span>Dihibahkan / dipindahtangankan</span>
             </label>
-            <label class="flex items-center gap-2.5 cursor-pointer font-semibold text-slate-900 pt-1 border-t border-slate-200">
+            <label class="flex items-center gap-2.5 font-semibold text-slate-900 dark:text-white pt-1.5 border-t border-slate-200 dark:border-slate-700">
               <input type="radio" name="alasan_template" value="Lainnya" class="text-red-700 focus:ring-red-600">
               <span>Lainnya</span>
             </label>
-          </div>
+          </fieldset>
         </div>
 
         <!-- Textbox Wajib Saat Opsi "Lainnya" Dipilih -->
         <div id="wrapper-alasan-lainnya" class="hidden">
-          <label for="keluar-alasan-lainnya" class="block font-semibold text-slate-700 mb-1">
-            Alasan <span class="text-red-500">*</span>
+          <label for="keluar-alasan-lainnya" class="block font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+            Alasan <span class="text-red-600 dark:text-red-400">*</span>
           </label>
           <textarea
             id="keluar-alasan-lainnya"
             rows="2"
             placeholder="Jelaskan alasan pengurangan stok"
-            class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-red-600"
+            class="sp-input placeholder:text-slate-500 dark:placeholder:text-slate-400"
           ></textarea>
         </div>
 
-        <div class="pt-3 border-t border-slate-200 flex items-center justify-end gap-2">
-          <button type="button" data-close-modal="modal-keluar" class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-medium hover:bg-slate-50 cursor-pointer">
+        <footer class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2.5">
+          <button type="button" data-close-modal="modal-keluar" class="sp-btn-secondary py-2 px-4 text-sm">
             Batal
           </button>
-          <button type="submit" id="btn-submit-keluar" class="px-5 py-2 rounded-lg bg-red-700 hover:bg-red-800 text-white font-semibold cursor-pointer">
+          <button type="submit" id="btn-submit-keluar" class="px-5 py-2 rounded-xl bg-red-700 hover:bg-red-800 active:bg-red-900 text-white font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-600 dark:focus-visible:ring-offset-slate-900">
             Simpan
           </button>
-        </div>
+        </footer>
       </form>
     </div>
   </div>
@@ -415,104 +562,122 @@
   <!-- ======================================================================= -->
   <!-- MODAL 4: SIRKULASI PEMINJAMAN & PENGEMBALIAN PER SESI                   -->
   <!-- ======================================================================= -->
-  <div id="modal-pinjam" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-xl rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
-      <div class="px-6 py-4 bg-amber-700 text-white flex items-center justify-between shrink-0">
-        <div>
-          <h2 class="text-base font-bold mt-0.5">Peminjaman &amp; Pengembalian Barang</h2>
+  <div id="modal-pinjam" role="dialog" aria-modal="true" aria-labelledby="modal-pinjam-title" class="hidden fixed inset-0 z-50 bg-slate-950/65 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="sp-modal-panel bg-white dark:bg-slate-900 w-full max-w-xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[90vh]">
+      <header class="px-6 py-4 bg-amber-700 dark:bg-amber-950 text-white border-b border-amber-600 dark:border-amber-800 flex items-center justify-between gap-3 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-lg bg-white/15 inline-flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4 text-amber-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"></path>
+            </svg>
+          </span>
+          <h2 id="modal-pinjam-title" class="font-display text-lg font-bold">Peminjaman &amp; Pengembalian Barang</h2>
         </div>
-        <button type="button" data-close-modal="modal-pinjam" class="text-amber-100 hover:text-white text-xl leading-none cursor-pointer">&times;</button>
-      </div>
+        <button type="button" data-close-modal="modal-pinjam" aria-label="Tutup modal peminjaman" class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-amber-100 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </header>
 
       <div class="p-6 space-y-5 text-sm overflow-y-auto">
-        <div id="pinjam-error" class="hidden p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs"></div>
+        <p id="pinjam-error" role="alert" class="hidden p-3 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/70 text-red-700 dark:text-red-300 text-xs font-medium"></p>
 
-        <div class="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div class="pb-3.5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <p id="pinjam-barang-nama" class="font-bold text-slate-900">-</p>
-            <p id="pinjam-barang-info" class="text-xs text-slate-600">-</p>
+            <p id="pinjam-barang-nama" class="font-bold text-slate-900 dark:text-white">-</p>
+            <p id="pinjam-barang-info" class="text-xs text-slate-600 dark:text-slate-300 kpi-num">-</p>
           </div>
-          <span id="pinjam-stok-badge" class="self-start sm:self-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+          <span id="pinjam-stok-badge" class="self-start sm:self-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 kpi-num">
             0 Tersedia
           </span>
         </div>
 
-        <form id="form-pinjam" class="space-y-3 p-4 rounded-xl border border-slate-200 bg-slate-50">
+        <form id="form-pinjam" class="space-y-3 pb-4 border-b border-slate-200 dark:border-slate-800">
           <input type="hidden" id="pinjam-barang-id">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Catat Peminjaman Baru</h3>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">Catat Peminjaman Baru</p>
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div class="sm:col-span-2">
-              <label for="pinjam-peminjam" class="block text-xs font-semibold text-slate-700 mb-1">Nama Peminjam / Kelas <span class="text-red-500">*</span></label>
-              <input type="text" id="pinjam-peminjam" required placeholder="Contoh: Kelas X IPA 1 (Pak Budi)" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-amber-600">
+              <label for="pinjam-peminjam" class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">Nama Peminjam / Kelas <span class="text-red-600 dark:text-red-400">*</span></label>
+              <input type="text" id="pinjam-peminjam" required placeholder="Contoh: Kelas X IPA 1 (Pak Budi)" class="sp-input placeholder:text-slate-500 dark:placeholder:text-slate-400">
             </div>
             <div>
-              <label for="pinjam-jumlah" class="block text-xs font-semibold text-slate-700 mb-1">Jumlah Unit <span class="text-red-500">*</span></label>
-              <input type="number" id="pinjam-jumlah" min="1" step="1" required placeholder="1" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-amber-600">
+              <label for="pinjam-jumlah" class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">Jumlah Unit <span class="text-red-600 dark:text-red-400">*</span></label>
+              <input type="number" id="pinjam-jumlah" min="1" step="1" required placeholder="1" class="sp-input placeholder:text-slate-500 dark:placeholder:text-slate-400">
             </div>
           </div>
 
           <div class="flex flex-col sm:flex-row gap-2">
-            <input type="text" id="pinjam-keterangan" placeholder="Kegiatan / catatan pinjam (opsional)" class="flex-1 px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-amber-600">
-            <button type="submit" id="btn-submit-pinjam" class="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold cursor-pointer shrink-0">
+            <input type="text" id="pinjam-keterangan" aria-label="Kegiatan atau catatan pinjam" placeholder="Kegiatan / catatan pinjam (opsional)" class="sp-input flex-1 placeholder:text-slate-500 dark:placeholder:text-slate-400">
+            <button type="submit" id="btn-submit-pinjam" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white text-xs font-semibold shrink-0 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-amber-600 dark:focus-visible:ring-offset-slate-900">
               Catat
             </button>
           </div>
         </form>
 
-        <div class="space-y-2">
+        <div class="space-y-2.5">
           <div class="flex items-center justify-between">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Peminjaman Aktif</h3>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">Peminjaman Aktif</p>
           </div>
 
-          <div id="active-pinjam-list" class="space-y-2">
-            <p class="text-xs text-slate-500 py-4 text-center border border-dashed border-slate-300 rounded-xl">Memuat daftar peminjam...</p>
+          <div id="active-pinjam-list" class="divide-y divide-slate-200 dark:divide-slate-800">
+            <p class="text-xs text-slate-600 dark:text-slate-400 py-4 text-center">Memuat daftar peminjam...</p>
           </div>
         </div>
       </div>
 
-      <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex justify-end shrink-0">
-        <button type="button" data-close-modal="modal-pinjam" class="px-4 py-2 rounded-lg border border-slate-300 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-100 cursor-pointer">
+      <footer class="px-6 py-3 bg-slate-50 dark:bg-slate-800/70 border-t border-slate-200 dark:border-slate-800 flex justify-end shrink-0">
+        <button type="button" data-close-modal="modal-pinjam" class="sp-btn-secondary py-2 px-4 text-xs">
           Tutup
         </button>
-      </div>
+      </footer>
     </div>
   </div>
 
   <!-- ======================================================================= -->
   <!-- MODAL 5: ATUR KONDISI FISIK PER UNIT (BATCH)                            -->
   <!-- ======================================================================= -->
-  <div id="modal-kondisi" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-      <div class="px-6 py-4 bg-indigo-900 text-white flex items-center justify-between">
-        <div>
-          <h2 class="text-base font-bold mt-0.5">Ubah Kondisi Fisik Barang</h2>
+  <div id="modal-kondisi" role="dialog" aria-modal="true" aria-labelledby="modal-kondisi-title" class="hidden fixed inset-0 z-50 bg-slate-950/65 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="sp-modal-panel bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+      <header class="px-6 py-4 bg-brand-900 dark:bg-slate-800 text-white border-b border-brand-800 dark:border-slate-700 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-lg bg-white/15 inline-flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4 text-brand-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path>
+            </svg>
+          </span>
+          <h2 id="modal-kondisi-title" class="font-display text-lg font-bold">Ubah Kondisi Fisik Barang</h2>
         </div>
-        <button type="button" data-close-modal="modal-kondisi" class="text-indigo-200 hover:text-white text-xl leading-none cursor-pointer">&times;</button>
-      </div>
+        <button type="button" data-close-modal="modal-kondisi" aria-label="Tutup modal ubah kondisi" class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-brand-100 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-300">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </header>
 
       <form id="form-kondisi" class="p-6 space-y-4 text-sm">
         <input type="hidden" id="kondisi-barang-id">
 
-        <div id="kondisi-error" class="hidden p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs"></div>
+        <p id="kondisi-error" role="alert" class="hidden p-3 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/70 text-red-700 dark:text-red-300 text-xs font-medium"></p>
 
-        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
-          <p id="kondisi-barang-nama" class="font-bold text-slate-900">-</p>
+        <div class="pb-3.5 border-b border-slate-200 dark:border-slate-800 space-y-2">
+          <p id="kondisi-barang-nama" class="font-bold text-slate-900 dark:text-white">-</p>
           <div id="kondisi-barang-badges" class="flex flex-wrap gap-1.5 text-xs"></div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label for="kondisi-dari" class="block font-semibold text-slate-700 mb-1">Kondisi Awal <span class="text-red-500">*</span></label>
-            <select id="kondisi-dari" required class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600">
+            <label for="kondisi-dari" class="block font-semibold text-slate-700 dark:text-slate-200 mb-1.5">Kondisi Awal <span class="text-red-600 dark:text-red-400">*</span></label>
+            <select id="kondisi-dari" required class="sp-select">
               <option value="Baik">Baik</option>
               <option value="Cukup">Cukup</option>
               <option value="Rusak">Rusak</option>
             </select>
           </div>
           <div>
-            <label for="kondisi-ke" class="block font-semibold text-slate-700 mb-1">Kondisi Baru <span class="text-red-500">*</span></label>
-            <select id="kondisi-ke" required class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600">
+            <label for="kondisi-ke" class="block font-semibold text-slate-700 dark:text-slate-200 mb-1.5">Kondisi Baru <span class="text-red-600 dark:text-red-400">*</span></label>
+            <select id="kondisi-ke" required class="sp-select">
               <option value="Cukup">Cukup</option>
               <option value="Rusak">Rusak</option>
               <option value="Baik">Baik</option>
@@ -521,35 +686,35 @@
         </div>
 
         <div>
-          <label for="kondisi-jumlah" class="block font-semibold text-slate-700 mb-1">
-            Jumlah Unit <span class="text-red-500">*</span>
+          <label for="kondisi-jumlah" class="block font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+            Jumlah Unit <span class="text-red-600 dark:text-red-400">*</span>
           </label>
-          <input type="number" id="kondisi-jumlah" min="1" step="1" value="1" required class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-600">
-          <p id="kondisi-max-hint" class="text-[11px] text-slate-500 mt-1">Maksimal sesuai jumlah unit pada kondisi awal.</p>
+          <input type="number" id="kondisi-jumlah" min="1" step="1" value="1" required class="sp-input">
+          <p id="kondisi-max-hint" class="text-[11px] text-slate-600 dark:text-slate-400 mt-1">Maksimal sesuai jumlah unit pada kondisi awal.</p>
         </div>
 
         <!-- Keterangan Wajib untuk Cukup & Rusak; Tersembunyi jika Baik -->
         <div id="wrapper-kondisi-keterangan">
-          <label for="kondisi-keterangan" class="block font-semibold text-slate-700 mb-1">
-            Keterangan <span class="text-red-500">*</span>
+          <label for="kondisi-keterangan" class="block font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+            Keterangan <span class="text-red-600 dark:text-red-400">*</span>
           </label>
           <textarea
             id="kondisi-keterangan"
             rows="2"
             required
             placeholder="Contoh: Jahitan bola mulai terkelupas"
-            class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+            class="sp-input placeholder:text-slate-500 dark:placeholder:text-slate-400"
           ></textarea>
         </div>
 
-        <div class="pt-3 border-t border-slate-200 flex items-center justify-end gap-2">
-          <button type="button" data-close-modal="modal-kondisi" class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-medium hover:bg-slate-50 cursor-pointer">
+        <footer class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2.5">
+          <button type="button" data-close-modal="modal-kondisi" class="sp-btn-secondary py-2 px-4 text-sm">
             Batal
           </button>
-          <button type="submit" id="btn-submit-kondisi" class="px-5 py-2 rounded-lg bg-indigo-800 hover:bg-indigo-900 text-white font-semibold cursor-pointer">
+          <button type="submit" id="btn-submit-kondisi" class="sp-btn-primary py-2 px-5 text-sm">
             Simpan
           </button>
-        </div>
+        </footer>
       </form>
     </div>
   </div>

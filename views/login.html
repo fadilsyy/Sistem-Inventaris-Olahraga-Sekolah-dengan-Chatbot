@@ -3,68 +3,156 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Petugas — Sistem Inventaris Olahraga Sekolah</title>
+  <title>Login Petugas — Sportify</title>
+  <link rel="icon" type="image/png" href="/images/logo.png">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('sportify_theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (t === 'dark' || (!t && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="/css/output.css" rel="stylesheet">
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex items-center justify-center p-4">
-  <div class="w-full max-w-md bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
-    <!-- Header Banner -->
-    <div class="bg-blue-900 px-6 py-6 text-white">
-      <span class="text-xs font-semibold uppercase tracking-wider text-blue-300">Gudang Olahraga Sekolah</span>
-      <h1 class="text-xl font-bold mt-1">Masuk ke Sistem Inventaris</h1>
-      <p class="text-xs text-blue-200 mt-1">Silakan masukkan kredensial akun petugas gudang Anda.</p>
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col justify-between p-4 sm:p-6 transition-colors duration-200">
+  <!-- Top Utility Bar -->
+  <header class="w-full max-w-4xl mx-auto flex items-center justify-between py-1">
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-400">
+      <span class="inline-block w-2 h-2 rounded-full bg-brand-600 dark:bg-brand-400" aria-hidden="true"></span>
+      <span>Portal Petugas Gudang</span>
     </div>
+    <button
+      type="button"
+      id="btn-theme-toggle"
+      aria-label="Aktifkan mode gelap"
+      aria-pressed="false"
+      class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+    >
+      <svg data-theme-icon="sun" class="hidden w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4"></circle>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+      </svg>
+      <svg data-theme-icon="moon" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79Z"></path>
+      </svg>
+    </button>
+  </header>
 
-    <!-- Form Login -->
-    <div class="p-6">
-      <div id="login-alert" class="hidden mb-4 px-4 py-3 rounded-xl text-xs font-medium border"></div>
-
-      <form id="form-login" class="space-y-4 text-sm">
+  <main class="flex-1 flex items-center justify-center py-6">
+    <div class="w-full max-w-4xl bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden grid grid-cols-1 md:grid-cols-12">
+      <!-- Brand Identity Banner (Tanpa Logo Besar) -->
+      <section class="md:col-span-5 bg-brand-950 text-white p-7 sm:p-8 flex flex-col justify-between relative overflow-hidden">
+        <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-brand-500 via-brand-400 to-accent-500" aria-hidden="true"></div>
         <div>
-          <label for="email" class="block font-medium text-slate-700 mb-1">Email Petugas</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            required
-            autocomplete="email"
-            placeholder="petugas@sekolah.sch.id"
-            class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
-          >
+          <h1 class="font-display text-4xl sm:text-5xl font-extrabold tracking-wide text-white leading-none">
+            Sportify
+          </h1>
+          <p class="text-sm font-medium text-brand-200 mt-2">
+            Sistem Inventaris Olahraga Sekolah
+          </p>
+          <p class="text-xs sm:text-sm text-slate-300 mt-5 leading-relaxed">
+            Catat ketersediaan perlengkapan olahraga di rak, pantau tiket peminjaman kelas, dan lacak kondisi fisik unit secara teraudit.
+          </p>
         </div>
 
-        <div>
-          <label for="password" class="block font-medium text-slate-700 mb-1">Password</label>
-          <div class="relative">
+        <ul class="mt-8 pt-6 border-t border-white/10 space-y-3 text-xs text-slate-200">
+          <li class="flex items-start gap-2.5">
+            <svg class="w-4 h-4 text-accent-400 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 6 9 17l-5-5"></path>
+            </svg>
+            <span>Pemisahan stok tersedia di rak dan unit yang sedang dipinjam</span>
+          </li>
+          <li class="flex items-start gap-2.5">
+            <svg class="w-4 h-4 text-accent-400 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 6 9 17l-5-5"></path>
+            </svg>
+            <span>Pelacakan kondisi fisik unit: Baik, Cukup, dan Rusak</span>
+          </li>
+          <li class="flex items-start gap-2.5">
+            <svg class="w-4 h-4 text-accent-400 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 6 9 17l-5-5"></path>
+            </svg>
+            <span>Audit log mutasi stok dan asisten pengecekan stok live</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Login Form -->
+      <section class="md:col-span-7 p-7 sm:p-9 flex flex-col justify-center">
+        <div class="mb-6">
+          <h2 class="font-display text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Masuk Akun Petugas
+          </h2>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+            Masukkan email dan password petugas gudang yang terdaftar.
+          </p>
+        </div>
+
+        <div id="login-alert" role="alert" class="hidden mb-5 px-4 py-3 rounded-xl text-xs font-medium border"></div>
+
+        <form id="form-login" class="space-y-4 text-sm">
+          <div>
+            <label for="email" class="block font-semibold text-slate-700 dark:text-slate-200 mb-1.5">Email Petugas</label>
             <input
-              type="password"
-              id="password"
-              name="password"
+              type="email"
+              id="email"
+              name="email"
               required
-              autocomplete="current-password"
-              placeholder="Masukkan password"
-              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 pr-16 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              autocomplete="email"
+              placeholder="petugas@sekolah.sch.id"
+              class="sp-input min-h-[44px] placeholder:text-slate-500 dark:placeholder:text-slate-400"
             >
+          </div>
+
+          <div>
+            <label for="password" class="block font-semibold text-slate-700 dark:text-slate-200 mb-1.5">Password</label>
+            <div class="relative">
+              <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                autocomplete="current-password"
+                placeholder="Masukkan password"
+                class="sp-input min-h-[44px] pr-24 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+              >
+              <button
+                type="button"
+                id="toggle-password"
+                aria-pressed="false"
+                class="absolute inset-y-1 right-1 px-3 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+              >
+                Lihat
+              </button>
+            </div>
+          </div>
+
+          <div class="pt-2">
             <button
-              type="button"
-              id="toggle-password"
-              class="absolute inset-y-0 right-0 px-3 text-xs font-medium text-slate-500 hover:text-slate-800 cursor-pointer"
+              type="submit"
+              id="btn-submit-login"
+              class="sp-btn-primary w-full min-h-[44px] text-sm"
             >
-              Lihat
+              Masuk ke Sistem
             </button>
           </div>
-        </div>
-
-        <button
-          type="submit"
-          id="btn-submit-login"
-          class="w-full bg-blue-800 hover:bg-blue-900 disabled:bg-blue-400 text-white font-semibold py-2.5 px-4 rounded-lg transition cursor-pointer"
-        >
-          Masuk (Login)
-        </button>
-      </form>
+        </form>
+      </section>
     </div>
-  </div>
+  </main>
+
+  <footer class="w-full max-w-4xl mx-auto text-center py-2 text-xs text-slate-600 dark:text-slate-400">
+    Sportify - Manajemen Inventaris Olahraga Sekolah
+  </footer>
 
   <script src="/js/api.js"></script>
   <script src="/js/auth.js"></script>

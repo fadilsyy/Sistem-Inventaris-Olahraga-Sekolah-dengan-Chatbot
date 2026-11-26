@@ -1,3 +1,166 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --sp-brand: #155EEF;
+    --sp-navy: #08173E;
+    --sp-accent: #F96416;
+    --sp-surface: #FFFFFF;
+    --sp-bg: #F8FAFC;
+    --sp-border: #E2E8F0;
+  }
+
+  .dark {
+    --sp-surface: #0F172A;
+    --sp-bg: #020617;
+    --sp-border: #1E293B;
+  }
+
+  html {
+    scroll-padding-top: 5.5rem;
+  }
+
+  body {
+    font-family: "Barlow", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    caret-color: var(--sp-brand);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: #DBE8FE;
+    color: #08173E;
+  }
+
+  .dark ::selection {
+    background-color: #1048C7;
+    color: #FFFFFF;
+  }
+
+  /* Interactive pointer affordance across reset controls */
+  a[href],
+  button:not(:disabled),
+  summary,
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  label[for],
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  input:disabled,
+  select:disabled,
+  textarea:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+
+  table,
+  .kpi-num {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  .sp-card {
+    @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-colors duration-200;
+  }
+
+  .sp-input {
+    @apply w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 dark:focus-visible:ring-brand-400 focus-visible:border-brand-600 dark:focus-visible:border-brand-400;
+  }
+
+  .sp-select {
+    @apply w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 dark:focus-visible:ring-brand-400 focus-visible:border-brand-600 dark:focus-visible:border-brand-400;
+  }
+
+  .sp-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 disabled:bg-brand-400 dark:bg-brand-600 dark:hover:bg-brand-500 text-white text-sm font-semibold shadow-sm transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-600 dark:focus-visible:ring-offset-slate-900;
+  }
+
+  .sp-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 active:bg-slate-100 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 text-sm font-semibold shadow-sm transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-600 dark:focus-visible:ring-offset-slate-900;
+  }
+
+  .sp-skeleton {
+    @apply rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse;
+  }
+}
+
+@keyframes spModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes spChatIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes spKpiFade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sp-modal-panel {
+  animation: spModalIn 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sp-chat-panel-open {
+  animation: spChatIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sp-kpi-card {
+  animation: spKpiFade 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Custom thin scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.65);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

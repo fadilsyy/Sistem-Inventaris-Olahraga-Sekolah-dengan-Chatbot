@@ -1,4 +1,4 @@
-# Sistem Inventaris Olahraga Sekolah dengan Chatbot (`INV-OR`)
+# Sportify: Sistem Inventaris Olahraga Sekolah dengan Chatbot
 
 Aplikasi web manajemen inventaris perlengkapan olahraga sekolah berbasis arsitektur **Unified MVC Monolith** (Node.js, Express, Tailwind CSS, dan PostgreSQL via Supabase). Sistem ini dirancang untuk membantu petugas gudang olahraga mencatat aset (`Sport` & `Non-Sport`), memantau ketersediaan unit di rak serta sirkulasi peminjaman per sesi, melacak kondisi fisik per jumlah unit (`Baik`, `Cukup`, `Rusak`), merekam seluruh aktivitas secara teraudit melalui **Unified Audit Logger**, serta mengecek kondisi stok secara cepat melalui **Floating AI Chatbot Assistant (Mode Mock)**.
 

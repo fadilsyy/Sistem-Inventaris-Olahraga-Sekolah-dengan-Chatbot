@@ -63,10 +63,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const wrapperKondisiKet = document.getElementById('wrapper-kondisi-keterangan');
   const inputKondisiKet = document.getElementById('kondisi-keterangan');
 
+  const ALL_MODALS = [modalBarang, modalMasuk, modalKeluar, modalPinjam, modalKondisi];
+
   let cachedItems = [];
   let activeKeluarItem = null;
   let activeKondisiItem = null;
   let debounceTimer = null;
+  let lastTriggerEl = null;
 
   function escapeHtml(str) {
     if (str === null || str === undefined) return '';
@@ -95,15 +98,35 @@ document.addEventListener('DOMContentLoaded', () => {
       'bg-emerald-50',
       'border-emerald-200',
       'text-emerald-800',
+      'dark:bg-emerald-950/60',
+      'dark:border-emerald-800/70',
+      'dark:text-emerald-300',
       'bg-red-50',
       'border-red-200',
-      'text-red-700'
+      'text-red-700',
+      'dark:bg-red-950/60',
+      'dark:border-red-800/70',
+      'dark:text-red-300'
     );
 
     if (type === 'error') {
-      toastAlert.classList.add('bg-red-50', 'border-red-200', 'text-red-700');
+      toastAlert.classList.add(
+        'bg-red-50',
+        'border-red-200',
+        'text-red-700',
+        'dark:bg-red-950/60',
+        'dark:border-red-800/70',
+        'dark:text-red-300'
+      );
     } else {
-      toastAlert.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-800');
+      toastAlert.classList.add(
+        'bg-emerald-50',
+        'border-emerald-200',
+        'text-emerald-800',
+        'dark:bg-emerald-950/60',
+        'dark:border-emerald-800/70',
+        'dark:text-emerald-300'
+      );
     }
 
     setTimeout(() => {
@@ -122,11 +145,23 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function openModal(modalEl) {
+    lastTriggerEl = document.activeElement;
     modalEl.classList.remove('hidden');
+    const closeBtn = modalEl.querySelector('[data-close-modal]');
+    const firstInput = modalEl.querySelector('input:not([type="hidden"]):not(:disabled), select:not(:disabled), textarea:not(:disabled)');
+    if (firstInput) {
+      setTimeout(() => firstInput.focus(), 20);
+    } else if (closeBtn) {
+      setTimeout(() => closeBtn.focus(), 20);
+    }
   }
 
   function closeModal(modalEl) {
     modalEl.classList.add('hidden');
+    if (lastTriggerEl && typeof lastTriggerEl.focus === 'function' && document.body.contains(lastTriggerEl)) {
+      lastTriggerEl.focus();
+      lastTriggerEl = null;
+    }
   }
 
   document.querySelectorAll('[data-close-modal]').forEach((btn) => {
@@ -137,14 +172,47 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Tutup modal dengan klik backdrop atau tombol Escape
+  ALL_MODALS.forEach((modalEl) => {
+    if (!modalEl) return;
+    modalEl.addEventListener('click', (e) => {
+      if (e.target === modalEl) {
+        closeModal(modalEl);
+      }
+    });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const openModalEl = ALL_MODALS.find((m) => m && !m.classList.contains('hidden'));
+    if (openModalEl) {
+      closeModal(openModalEl);
+    }
+  });
+
   function updateCategoryHint() {
     kategoriHint.textContent = CATEGORY_HINTS[kategoriSelect.value] || CATEGORY_HINTS.Sport;
+  }
+
+  function renderTableSkeleton() {
+    const row = `
+      <tr>
+        <td class="py-4 px-4"><div class="h-4 w-16 sp-skeleton"></div></td>
+        <td class="py-4 px-4"><div class="h-4 w-40 sp-skeleton"></div></td>
+        <td class="py-4 px-4"><div class="h-5 w-16 rounded-full sp-skeleton"></div></td>
+        <td class="py-4 px-4"><div class="h-4 w-28 sp-skeleton"></div></td>
+        <td class="py-4 px-4"><div class="h-5 w-24 rounded-full sp-skeleton"></div></td>
+        <td class="py-4 px-4"><div class="h-7 w-48 ml-auto sp-skeleton"></div></td>
+      </tr>
+    `;
+    tableBody.innerHTML = row + row + row;
   }
 
   // =========================================================================
   // MUAT & RENDER TABEL INVENTARIS
   // =========================================================================
   async function loadInventaris() {
+    renderTableSkeleton();
     const params = new URLSearchParams();
     if (searchInput.value.trim()) params.append('search', searchInput.value.trim());
     if (kategoriFilter.value) params.append('kategori', kategoriFilter.value);
@@ -183,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       tableBody.innerHTML = `
         <tr>
-          <td colspan="6" class="py-8 text-center text-red-600 font-medium">${escapeHtml(err.message)}</td>
+          <td colspan="6" class="py-8 px-4 text-center text-red-700 dark:text-red-300 font-medium">${escapeHtml(err.message)}</td>
         </tr>
       `;
     }
@@ -193,8 +261,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!items.length) {
       tableBody.innerHTML = `
         <tr>
-          <td colspan="6" class="py-10 text-center text-slate-500">
-            Belum ada data barang yang sesuai kriteria pencarian atau filter saat ini.
+          <td colspan="6" class="py-10 px-4 text-center text-slate-600 dark:text-slate-400">
+            Belum ada data barang yang sesuai kriteria pencarian atau filter saat ini. Coba reset filter atau tambahkan barang baru.
           </td>
         </tr>
       `;
@@ -211,51 +279,51 @@ document.addEventListener('DOMContentLoaded', () => {
       .map((item) => {
         const kategoriBadge =
           item.kategori === 'Sport'
-            ? 'bg-blue-100 text-blue-800'
-            : 'bg-indigo-100 text-indigo-800';
+            ? 'bg-brand-100 text-brand-800 dark:bg-brand-950/80 dark:text-brand-300 border border-brand-200 dark:border-brand-800/70'
+            : 'bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700';
 
         const tersediaBadgeClass =
           item.stok_tersedia === 0
-            ? 'text-red-700'
+            ? 'text-red-700 dark:text-red-400'
             : item.stok_tersedia <= 2
-            ? 'text-amber-700'
-            : 'text-emerald-700';
+            ? 'text-amber-700 dark:text-amber-400'
+            : 'text-emerald-700 dark:text-emerald-400';
 
         const dipinjamTag =
           item.stok_dipinjam > 0
-            ? `<span class="inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800">${item.stok_dipinjam} Dipinjam</span>`
-            : `<span class="text-[11px] text-slate-400">0 Dipinjam</span>`;
+            ? `<span class="inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-200 dark:border-amber-800/70">${item.stok_dipinjam} Dipinjam</span>`
+            : `<span class="text-[11px] text-slate-600 dark:text-slate-400">0 Dipinjam</span>`;
 
         const kondisiBadges = [];
         if (item.stok_baik > 0 && (!isKondisiFiltered || activeKondisiFilter.includes('Baik'))) {
           kondisiBadges.push(
-            `<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">${item.stok_baik} Baik</span>`
+            `<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/70">${item.stok_baik} Baik</span>`
           );
         }
         if (item.stok_cukup > 0 && (!isKondisiFiltered || activeKondisiFilter.includes('Cukup'))) {
           kondisiBadges.push(
-            `<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800">${item.stok_cukup} Cukup</span>`
+            `<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-200 dark:border-amber-800/70">${item.stok_cukup} Cukup</span>`
           );
         }
         if (item.stok_rusak > 0 && (!isKondisiFiltered || activeKondisiFilter.includes('Rusak'))) {
           kondisiBadges.push(
-            `<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-100 text-red-800">${item.stok_rusak} Rusak</span>`
+            `<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-100 text-red-800 dark:bg-red-950/70 dark:text-red-300 border border-red-200 dark:border-red-800/70">${item.stok_rusak} Rusak</span>`
           );
         }
         if (!kondisiBadges.length) {
-          kondisiBadges.push(`<span class="text-xs text-slate-400">0 unit</span>`);
+          kondisiBadges.push(`<span class="text-xs text-slate-500 dark:text-slate-400">0 unit</span>`);
         }
 
         return `
-          <tr class="hover:bg-slate-50/80 transition">
-            <td class="py-3.5 px-4 font-mono text-xs font-bold text-slate-700 whitespace-nowrap">
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors duration-150">
+            <td class="py-3.5 px-4 font-mono text-xs font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">
               ${escapeHtml(item.kode_barang)}
             </td>
             <td class="py-3.5 px-4">
-              <div class="font-semibold text-slate-900">${escapeHtml(item.nama_barang)}</div>
+              <div class="font-semibold text-slate-900 dark:text-white">${escapeHtml(item.nama_barang)}</div>
               ${
                 item.deskripsi
-                  ? `<div class="text-xs text-slate-500 mt-0.5 line-clamp-1">${escapeHtml(item.deskripsi)}</div>`
+                  ? `<div class="text-xs text-slate-600 dark:text-slate-400 mt-0.5 line-clamp-1">${escapeHtml(item.deskripsi)}</div>`
                   : ''
               }
             </td>
@@ -264,16 +332,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${escapeHtml(item.kategori)}
               </span>
             </td>
-            <td class="py-3.5 px-4 whitespace-nowrap">
+            <td class="py-3.5 px-4 whitespace-nowrap kpi-num">
               <div class="font-bold ${tersediaBadgeClass}">
                 ${item.stok_tersedia} <span class="text-xs font-medium">${escapeHtml(item.satuan)} Tersedia</span>
               </div>
               <div class="flex items-center gap-1.5 mt-0.5">
                 ${dipinjamTag}
-                <span class="text-[11px] text-slate-500">&bull; Total: ${item.stok_sistem}</span>
+                <span class="text-[11px] text-slate-600 dark:text-slate-400">&bull; Total: ${item.stok_sistem}</span>
               </div>
             </td>
-            <td class="py-3.5 px-4">
+            <td class="py-3.5 px-4 kpi-num">
               <div class="flex flex-wrap items-center gap-1">
                 ${kondisiBadges.join('')}
               </div>
@@ -284,41 +352,56 @@ document.addEventListener('DOMContentLoaded', () => {
                   type="button"
                   data-action="masuk"
                   data-id="${item.id}"
-                  class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold cursor-pointer transition"
+                  class="inline-flex items-center gap-1 px-2.5 py-1.5 min-h-[34px] rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/70 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/70 text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
                 >
-                   Masuk
+                  <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 5v14M5 12h14"></path>
+                  </svg>
+                  <span>Masuk</span>
                 </button>
                 <button
                   type="button"
                   data-action="keluar"
                   data-id="${item.id}"
-                  class="px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-800 border border-red-200 text-xs font-semibold cursor-pointer transition"
+                  class="inline-flex items-center gap-1 px-2.5 py-1.5 min-h-[34px] rounded-lg bg-red-50 hover:bg-red-100 dark:bg-red-950/60 dark:hover:bg-red-900/70 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800/70 text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
                 >
-                   Keluar
+                  <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12h14"></path>
+                  </svg>
+                  <span>Keluar</span>
                 </button>
                 <button
                   type="button"
                   data-action="pinjam"
                   data-id="${item.id}"
-                  class="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold cursor-pointer transition"
+                  class="inline-flex items-center gap-1 px-2.5 py-1.5 min-h-[34px] rounded-lg bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/60 dark:hover:bg-amber-900/70 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/70 text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600"
                 >
-                  Status
+                  <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M16 3h5v5M4 20 21 3"></path>
+                  </svg>
+                  <span>Status</span>
                 </button>
                 <button
                   type="button"
                   data-action="kondisi"
                   data-id="${item.id}"
-                  class="px-2.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 text-xs font-semibold cursor-pointer transition"
+                  class="inline-flex items-center gap-1 px-2.5 py-1.5 min-h-[34px] rounded-lg bg-brand-50 hover:bg-brand-100 dark:bg-brand-950/70 dark:hover:bg-brand-900/70 text-brand-800 dark:text-brand-300 border border-brand-200 dark:border-brand-800/70 text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                 >
-                  Kondisi
+                  <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path>
+                  </svg>
+                  <span>Kondisi</span>
                 </button>
                 <button
                   type="button"
                   data-action="edit"
                   data-id="${item.id}"
-                  class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold cursor-pointer transition"
+                  class="inline-flex items-center gap-1 px-2.5 py-1.5 min-h-[34px] rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
                 >
-                  Edit
+                  <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 20h9M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4Z"></path>
+                  </svg>
+                  <span>Edit</span>
                 </button>
               </div>
             </td>
@@ -433,7 +516,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showBoxError(modalError, err.message);
     } finally {
       btnSave.disabled = false;
-      btnSave.textContent = 'Simpan';
+      btnSave.textContent = 'Simpan Barang';
     }
   });
 
@@ -503,8 +586,8 @@ document.addEventListener('DOMContentLoaded', () => {
     keluarTotalPill.textContent = `Total Keluar: ${total} / Maks ${activeKeluarItem.stok_tersedia} ${activeKeluarItem.satuan}`;
     keluarTotalPill.className =
       total > activeKeluarItem.stok_tersedia
-        ? 'px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800'
-        : 'px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-200 text-slate-800';
+        ? 'px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800 dark:bg-red-950/70 dark:text-red-300 border border-red-200 dark:border-red-800/70 kpi-num'
+        : 'px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200 kpi-num';
   }
 
   document.querySelectorAll('.chk-keluar-kondisi').forEach((chk) => {
@@ -514,14 +597,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (e.target.checked) {
         targetInput.disabled = false;
-        targetInput.classList.remove('bg-slate-100');
-        targetInput.classList.add('bg-white');
+        targetInput.classList.remove('bg-slate-100', 'dark:bg-slate-800');
+        targetInput.classList.add('bg-white', 'dark:bg-slate-950');
         targetInput.value = 1;
         targetInput.focus();
       } else {
         targetInput.disabled = true;
-        targetInput.classList.add('bg-slate-100');
-        targetInput.classList.remove('bg-white');
+        targetInput.classList.add('bg-slate-100', 'dark:bg-slate-800');
+        targetInput.classList.remove('bg-white', 'dark:bg-slate-950');
         targetInput.value = 0;
       }
       recalcKeluarTotal();
@@ -562,8 +645,8 @@ document.addEventListener('DOMContentLoaded', () => {
       qty.disabled = true;
       qty.value = 0;
       qty.max = count;
-      qty.classList.add('bg-slate-100');
-      qty.classList.remove('bg-white');
+      qty.classList.add('bg-slate-100', 'dark:bg-slate-800');
+      qty.classList.remove('bg-white', 'dark:bg-slate-950');
     });
 
     recalcKeluarTotal();
@@ -636,7 +719,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
   async function loadActiveTicketsForBarang(barangId, satuan) {
     activePinjamList.innerHTML =
-      '<p class="text-xs text-slate-500 py-4 text-center border border-dashed border-slate-300 rounded-xl">Memuat daftar peminjaman aktif...</p>';
+      '<p class="text-xs text-slate-600 dark:text-slate-400 py-4 text-center">Memuat daftar peminjaman aktif...</p>';
 
     try {
       const res = await ApiClient.request(`/api/peminjaman?barang_id=${encodeURIComponent(barangId)}`);
@@ -644,22 +727,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!tickets.length) {
         activePinjamList.innerHTML =
-          '<p class="text-xs text-slate-500 py-4 text-center border border-dashed border-slate-300 rounded-xl">Tidak ada unit yang sedang dipinjam saat ini.</p>';
+          '<p class="text-xs text-slate-600 dark:text-slate-400 py-4 text-center">Tidak ada unit yang sedang dipinjam saat ini.</p>';
         return;
       }
 
       activePinjamList.innerHTML = tickets
         .map(
           (t) => `
-            <div class="p-3 rounded-xl border border-slate-200 bg-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
+            <div class="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
               <div class="space-y-0.5">
                 <div class="flex items-center gap-2">
-                  <span class="font-bold text-slate-900 text-xs sm:text-sm">${escapeHtml(t.peminjam)}</span>
-                  <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800">
+                  <span class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">${escapeHtml(t.peminjam)}</span>
+                  <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-200 dark:border-amber-800/70 kpi-num">
                     ${t.jumlah} ${escapeHtml(satuan)}
                   </span>
                 </div>
-                <p class="text-[11px] text-slate-500">
+                <p class="text-[11px] text-slate-600 dark:text-slate-400">
                   Dipinjam: ${formatWaktuWIB(t.borrowed_at)} ${t.keterangan ? `&bull; ${escapeHtml(t.keterangan)}` : ''}
                 </p>
               </div>
@@ -668,7 +751,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 data-return-ticket-id="${t.id}"
                 data-barang-id="${barangId}"
                 data-satuan="${escapeHtml(satuan)}"
-                class="btn-kembalikan-ticket self-start sm:self-center px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold cursor-pointer transition shrink-0"
+                class="btn-kembalikan-ticket self-start sm:self-center px-3 py-1.5 min-h-[36px] rounded-lg bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white text-xs font-semibold transition-colors shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
               >
                 Kembalikan
               </button>
@@ -677,7 +760,7 @@ document.addEventListener('DOMContentLoaded', () => {
         )
         .join('');
     } catch (err) {
-      activePinjamList.innerHTML = `<p class="text-xs text-red-600 py-3 text-center">${escapeHtml(err.message)}</p>`;
+      activePinjamList.innerHTML = `<p class="text-xs text-red-700 dark:text-red-300 py-3 text-center">${escapeHtml(err.message)}</p>`;
     }
   }
 
@@ -691,8 +774,8 @@ document.addEventListener('DOMContentLoaded', () => {
     badge.textContent = `${item.stok_tersedia} ${item.satuan} Tersedia`;
     badge.className =
       item.stok_tersedia > 0
-        ? 'self-start sm:self-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800'
-        : 'self-start sm:self-center px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800';
+        ? 'self-start sm:self-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/70 kpi-num'
+        : 'self-start sm:self-center px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 dark:bg-red-950/70 dark:text-red-300 border border-red-200 dark:border-red-800/70 kpi-num';
 
     const qtyInput = document.getElementById('pinjam-jumlah');
     qtyInput.max = item.stok_tersedia;
@@ -826,9 +909,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('kondisi-barang-id').value = item.id;
     document.getElementById('kondisi-barang-nama').textContent = `[${item.kode_barang}] ${item.nama_barang}`;
     document.getElementById('kondisi-barang-badges').innerHTML = `
-      <span class="px-2 py-0.5 rounded-full font-semibold bg-emerald-100 text-emerald-800">${item.stok_baik} Baik</span>
-      <span class="px-2 py-0.5 rounded-full font-semibold bg-amber-100 text-amber-800">${item.stok_cukup} Cukup</span>
-      <span class="px-2 py-0.5 rounded-full font-semibold bg-red-100 text-red-800">${item.stok_rusak} Rusak</span>
+      <span class="px-2 py-0.5 rounded-full font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/70 kpi-num">${item.stok_baik} Baik</span>
+      <span class="px-2 py-0.5 rounded-full font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-200 dark:border-amber-800/70 kpi-num">${item.stok_cukup} Cukup</span>
+      <span class="px-2 py-0.5 rounded-full font-semibold bg-red-100 text-red-800 dark:bg-red-950/70 dark:text-red-300 border border-red-200 dark:border-red-800/70 kpi-num">${item.stok_rusak} Rusak</span>
     `;
 
     // Pilih default kondisi asal yang stoknya > 0

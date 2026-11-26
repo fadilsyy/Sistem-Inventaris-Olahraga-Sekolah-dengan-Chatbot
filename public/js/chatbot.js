@@ -45,9 +45,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   function formatBotMarkdownSafe(rawText) {
     let safe = escapeHtml(rawText);
     // Konversi **teks tebal** menjadi <strong>
-    safe = safe.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-slate-900">$1</strong>');
+    safe = safe.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-slate-900 dark:text-white">$1</strong>');
     // Konversi _teks miring_ menjadi <em>
-    safe = safe.replace(/_(.+?)_/g, '<em class="text-slate-500">$1</em>');
+    safe = safe.replace(/_(.+?)_/g, '<em class="text-slate-600 dark:text-slate-400">$1</em>');
     // Konversi baris baru menjadi <br>
     safe = safe.replace(/\n/g, '<br>');
     return safe;
@@ -109,73 +109,83 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Render Root Container Floating Widget
   const root = document.createElement('div');
   root.id = 'floating-chatbot-root';
-  root.className = 'fixed bottom-5 right-5 z-50 flex flex-col items-end';
+  root.className = 'fixed bottom-4 right-4 sm:bottom-5 sm:right-5 z-40 flex flex-col items-end';
 
   root.innerHTML = `
     <!-- Panel Jendela Chat -->
-    <div id="chatbot-panel" class="hidden mb-3 w-80 sm:w-96 bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col" style="max-height: 520px;">
+    <div id="chatbot-panel" role="dialog" aria-label="Asisten Sportify" class="hidden sp-chat-panel-open mb-3 w-[calc(100vw-2rem)] sm:w-96 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col" style="max-height: 540px;">
       <!-- Header -->
-      <div class="bg-blue-900 text-white px-4 py-3.5 flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-xl bg-blue-700 flex items-center justify-center font-extrabold text-xs">
-            AI
+      <div class="bg-brand-950 dark:bg-slate-800 text-white px-4 py-3.5 border-b border-brand-900 dark:border-slate-700 border-t-2 border-t-accent-500 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-9 h-9 rounded-xl bg-brand-600/30 border border-brand-400/30 flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 text-brand-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              <path d="M8 9h8M8 13h5"></path>
+            </svg>
           </div>
-          <div>
-            <h3 class="text-sm font-bold leading-tight">Asisten Gudang Olahraga</h3>
+          <div class="min-w-0">
+            <h3 class="text-sm font-bold leading-tight truncate">Asisten Sportify</h3>
             <div class="flex items-center gap-1.5 mt-0.5">
-              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-              <span id="chatbot-header-status" class="text-[11px] text-blue-200">Mock &bull; Data Live</span>
+              <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0" aria-hidden="true"></span>
+              <span id="chatbot-header-status" class="text-[11px] text-brand-200 truncate">Mock &bull; Data Live</span>
             </div>
           </div>
         </div>
-        <div class="flex items-center gap-1">
-          <button type="button" id="chatbot-clear-btn" title="Bersihkan Riwayat Chat" class="px-2 py-1 rounded-lg text-xs text-blue-200 hover:bg-blue-800 hover:text-white cursor-pointer transition">
+        <div class="flex items-center gap-1 shrink-0">
+          <button type="button" id="chatbot-clear-btn" title="Bersihkan Riwayat Chat" aria-label="Reset riwayat chat" class="px-2.5 py-1.5 min-h-[34px] rounded-lg text-xs font-medium text-brand-200 hover:bg-white/10 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400">
             Reset
           </button>
-          <button type="button" id="chatbot-close-btn" title="Tutup" class="p-1.5 rounded-lg text-blue-200 hover:bg-blue-800 hover:text-white cursor-pointer transition">
-            &#10005;
+          <button type="button" id="chatbot-close-btn" title="Tutup" aria-label="Tutup panel Asisten Sportify" class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-brand-200 hover:bg-white/10 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 6 6 18M6 6l12 12"></path>
+            </svg>
           </button>
         </div>
       </div>
 
       <!-- Area Pesan -->
-      <div id="chatbot-messages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50 text-xs sm:text-sm" style="min-height: 280px; max-height: 340px;">
+      <div id="chatbot-messages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm" style="min-height: 260px; max-height: 330px;">
       </div>
 
       <!-- Quick Suggestions -->
-      <div id="chatbot-suggestions" class="px-3 py-2 bg-white border-t border-slate-100 flex gap-1.5 overflow-x-auto">
+      <div id="chatbot-suggestions" class="px-3 py-2 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex gap-1.5 overflow-x-auto">
       </div>
 
       <!-- Kontrol Pilihan Model & Penalaran -->
-      <div id="chatbot-model-controls" class="px-3 py-1.5 bg-slate-50 border-t border-slate-100 flex items-center gap-2">
+      <div id="chatbot-model-controls" class="px-3 py-2 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2">
         <select
           id="chatbot-model-select"
           aria-label="Pilihan Model"
-          class="flex-1 min-w-0 px-2 py-1 text-[11px] rounded-lg border border-slate-300 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer"
+          class="flex-1 min-w-0 px-2.5 py-1.5 text-[11px] rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
         ></select>
         <select
           id="chatbot-reasoning-select"
           aria-label="Tingkat Penalaran"
-          class="w-28 shrink-0 px-2 py-1 text-[11px] rounded-lg border border-slate-300 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer"
+          class="w-28 shrink-0 px-2.5 py-1.5 text-[11px] rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
         ></select>
       </div>
 
       <!-- Form Input -->
-      <form id="chatbot-form" class="p-3 bg-white border-t border-slate-200 flex items-center gap-2">
+      <form id="chatbot-form" class="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2">
         <input
           type="text"
           id="chatbot-input"
           maxlength="500"
           autocomplete="off"
+          aria-label="Pertanyaan untuk Asisten Sportify"
           placeholder="Tanya stok, barang rusak, ringkasan..."
-          class="flex-1 px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          class="flex-1 min-w-0 px-3 py-2 min-h-[40px] text-xs sm:text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
         >
         <button
           type="submit"
           id="chatbot-send-btn"
-          class="px-3.5 py-2 rounded-xl bg-blue-800 hover:bg-blue-900 text-white text-xs font-semibold cursor-pointer transition shrink-0"
+          class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white text-xs font-semibold transition-colors shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
         >
-          Kirim
+          <span>Kirim</span>
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m22 2-7 20-4-9-9-4Z"></path>
+            <path d="M22 2 11 13"></path>
+          </svg>
         </button>
       </form>
     </div>
@@ -184,11 +194,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     <button
       type="button"
       id="chatbot-toggle-btn"
-      class="flex items-center gap-2.5 px-4 py-3 rounded-full bg-blue-900 hover:bg-blue-800 text-white shadow-lg hover:shadow-xl cursor-pointer transition"
+      aria-expanded="false"
+      aria-controls="chatbot-panel"
+      class="flex items-center gap-2.5 min-h-[44px] px-4 py-2.5 rounded-full bg-brand-950 hover:bg-brand-900 dark:bg-brand-600 dark:hover:bg-brand-500 text-white shadow-lg hover:shadow-xl ring-1 ring-white/15 transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-600 dark:focus-visible:ring-offset-slate-950"
     >
-      <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-      <span class="text-xs sm:text-sm font-bold tracking-tight">Asisten AI</span>
-      <span id="chatbot-fab-badge" class="px-1.5 py-0.5 rounded-md bg-blue-700 text-[10px] font-semibold uppercase">Mock</span>
+      <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0" aria-hidden="true"></span>
+      <svg class="w-4 h-4 text-brand-200 dark:text-white shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      </svg>
+      <span class="text-xs sm:text-sm font-bold tracking-tight">Asisten Sportify</span>
+      <span id="chatbot-fab-badge" class="px-2 py-0.5 rounded-md bg-brand-700 dark:bg-brand-800 text-[10px] font-semibold uppercase tracking-wide">Mock</span>
     </button>
   `;
 
@@ -293,7 +308,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             type="button"
             data-chip="${escapeHtml(text)}"
             ${disabledAttr}
-            class="chatbot-chip shrink-0 px-2.5 py-1 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 text-[11px] font-medium ${stateClass} transition"
+            class="chatbot-chip shrink-0 px-2.5 py-1 rounded-full bg-brand-50 hover:bg-brand-100 dark:bg-brand-950/70 dark:hover:bg-brand-900/70 text-brand-800 dark:text-brand-200 border border-brand-200 dark:border-brand-800/70 text-[11px] font-medium ${stateClass} transition-colors"
           >
             ${escapeHtml(text)}
           </button>
@@ -308,7 +323,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (msg.sender === 'user') {
           return `
             <div class="flex justify-end">
-              <div class="max-w-[82%] px-3.5 py-2.5 rounded-2xl rounded-br-sm bg-blue-800 text-white shadow-xs leading-relaxed">
+              <div class="max-w-[82%] px-3.5 py-2.5 rounded-2xl rounded-br-sm bg-brand-600 text-white shadow-xs leading-relaxed">
                 ${escapeHtml(msg.text)}
               </div>
             </div>
@@ -317,7 +332,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         return `
           <div class="flex justify-start">
-            <div class="max-w-[88%] px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-white border border-slate-200 text-slate-700 shadow-xs leading-relaxed">
+            <div class="max-w-[88%] px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 shadow-xs leading-relaxed">
               ${formatBotMarkdownSafe(msg.text)}
             </div>
           </div>
@@ -328,7 +343,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (isSending) {
       messagesBox.innerHTML += `
         <div class="flex justify-start">
-          <div class="px-3.5 py-2 rounded-2xl bg-white border border-slate-200 text-slate-400 text-xs italic">
+          <div class="px-3.5 py-2 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 text-xs italic">
             Memeriksa data inventaris...
           </div>
         </div>
@@ -422,6 +437,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  function setPanelOpen(nextOpen) {
+    isOpen = Boolean(nextOpen);
+    panel.classList.toggle('hidden', !isOpen);
+    toggleBtn.setAttribute('aria-expanded', String(isOpen));
+    if (isOpen) {
+      renderMessages();
+      if (!isSending) {
+        input.focus();
+      }
+    }
+  }
+
   modelSelect.addEventListener('change', () => {
     if (isSending) return;
     selectedModelId = modelSelect.value;
@@ -436,19 +463,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   toggleBtn.addEventListener('click', () => {
-    isOpen = !isOpen;
-    panel.classList.toggle('hidden', !isOpen);
-    if (isOpen) {
-      renderMessages();
-      if (!isSending) {
-        input.focus();
-      }
-    }
+    setPanelOpen(!isOpen);
   });
 
   closeBtn.addEventListener('click', () => {
-    isOpen = false;
-    panel.classList.add('hidden');
+    setPanelOpen(false);
+    toggleBtn.focus();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen) {
+      setPanelOpen(false);
+      toggleBtn.focus();
+    }
   });
 
   clearBtn.addEventListener('click', () => {
