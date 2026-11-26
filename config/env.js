@@ -6,7 +6,9 @@ const env = {
   supabaseUrl: (process.env.SUPABASE_URL || '').trim(),
   supabaseKey: (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim(),
   jwtSecret: (process.env.JWT_SECRET || '').trim(),
-  jwtExpiresIn: (process.env.JWT_EXPIRES_IN || '1d').trim()
+  jwtExpiresIn: (process.env.JWT_EXPIRES_IN || '1d').trim(),
+  geminiApiKey: (process.env.GEMINI_API_KEY || '').trim(),
+  groqApiKey: (process.env.GROQ_API_KEY || '').trim()
 };
 
 if (!env.jwtSecret || env.jwtSecret.length < 16) {

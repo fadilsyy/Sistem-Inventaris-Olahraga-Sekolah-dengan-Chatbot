@@ -1,8 +1,10 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   // Jangan tampilkan widget di halaman login
   if (window.location.pathname === '/login') return;
 
   const STORAGE_KEY = 'inv_or_chat_history_v1';
+  const MODEL_STORAGE_KEY = 'inv_or_chat_model_v1';
+  const REASONING_STORAGE_KEY = 'inv_or_chat_reasoning_v1';
   const MAX_MESSAGE_LENGTH = 500;
   const FRIENDLY_ERROR_MESSAGE =
     'Maaf, asisten sedang tidak dapat memproses permintaan Anda. Silakan coba lagi sebentar lagi.';
@@ -12,6 +14,23 @@ document.addEventListener('DOMContentLoaded', () => {
     'Cek barang rusak',
     'Aktivitas stok terakhir'
   ];
+
+  // Konfigurasi bawaan jika gagal memuat GET /api/chatbot/options
+  let availableOptions = [
+    {
+      id: 'local',
+      label: 'Mock',
+      shortLabel: 'Mock',
+      supportsReasoning: false
+    }
+  ];
+  let availablePresets = [
+    { id: 'hemat', label: 'Hemat' },
+    { id: 'seimbang', label: 'Seimbang' },
+    { id: 'mendalam', label: 'Mendalam' }
+  ];
+  let defaultModelId = 'local';
+  let defaultPresetId = 'seimbang';
 
   function escapeHtml(str) {
     if (str === null || str === undefined) return '';
@@ -64,9 +83,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function loadStoredSelection(key, fallback) {
+    try {
+      const val = sessionStorage.getItem(key);
+      return val || fallback;
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  function saveStoredSelection(key, value) {
+    try {
+      sessionStorage.setItem(key, value);
+    } catch (_) {
+      // Abaikan storage error
+    }
+  }
+
   let messages = loadHistory();
   let isOpen = false;
   let isSending = false;
+  let selectedModelId = loadStoredSelection(MODEL_STORAGE_KEY, defaultModelId);
+  let selectedPresetId = loadStoredSelection(REASONING_STORAGE_KEY, defaultPresetId);
 
   // Render Root Container Floating Widget
   const root = document.createElement('div');
@@ -86,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <h3 class="text-sm font-bold leading-tight">Asisten Gudang Olahraga</h3>
             <div class="flex items-center gap-1.5 mt-0.5">
               <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-              <span class="text-[11px] text-blue-200">Mode Mock &bull; Data Live</span>
+              <span id="chatbot-header-status" class="text-[11px] text-blue-200">Mock &bull; Data Live</span>
             </div>
           </div>
         </div>
@@ -106,6 +144,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
       <!-- Quick Suggestions -->
       <div id="chatbot-suggestions" class="px-3 py-2 bg-white border-t border-slate-100 flex gap-1.5 overflow-x-auto">
+      </div>
+
+      <!-- Kontrol Pilihan Model & Penalaran -->
+      <div id="chatbot-model-controls" class="px-3 py-1.5 bg-slate-50 border-t border-slate-100 flex items-center gap-2">
+        <select
+          id="chatbot-model-select"
+          aria-label="Pilihan Model"
+          class="flex-1 min-w-0 px-2 py-1 text-[11px] rounded-lg border border-slate-300 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer"
+        ></select>
+        <select
+          id="chatbot-reasoning-select"
+          aria-label="Tingkat Penalaran"
+          class="w-28 shrink-0 px-2 py-1 text-[11px] rounded-lg border border-slate-300 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer"
+        ></select>
       </div>
 
       <!-- Form Input -->
@@ -136,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
     >
       <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
       <span class="text-xs sm:text-sm font-bold tracking-tight">Asisten AI</span>
-      <span class="px-1.5 py-0.5 rounded-md bg-blue-700 text-[10px] font-semibold uppercase">Mock</span>
+      <span id="chatbot-fab-badge" class="px-1.5 py-0.5 rounded-md bg-blue-700 text-[10px] font-semibold uppercase">Mock</span>
     </button>
   `;
 
@@ -146,18 +198,66 @@ document.addEventListener('DOMContentLoaded', () => {
   const toggleBtn = document.getElementById('chatbot-toggle-btn');
   const closeBtn = document.getElementById('chatbot-close-btn');
   const clearBtn = document.getElementById('chatbot-clear-btn');
+  const headerStatus = document.getElementById('chatbot-header-status');
+  const fabBadge = document.getElementById('chatbot-fab-badge');
   const messagesBox = document.getElementById('chatbot-messages');
   const suggestionsBox = document.getElementById('chatbot-suggestions');
+  const modelSelect = document.getElementById('chatbot-model-select');
+  const reasoningSelect = document.getElementById('chatbot-reasoning-select');
   const form = document.getElementById('chatbot-form');
   const input = document.getElementById('chatbot-input');
   const sendBtn = document.getElementById('chatbot-send-btn');
 
-  // Mengunci atau membuka input, tombol kirim, seluruh chip saran, dan tombol Reset
+  function getSelectedModelObject() {
+    return (
+      availableOptions.find((opt) => opt.id === selectedModelId) ||
+      availableOptions[0]
+    );
+  }
+
+  function syncModelAndReasoningControls() {
+    // Pastikan pilihan tersimpan masih valid
+    if (!availableOptions.some((opt) => opt.id === selectedModelId)) {
+      selectedModelId = defaultModelId;
+      saveStoredSelection(MODEL_STORAGE_KEY, selectedModelId);
+    }
+
+    if (!availablePresets.some((p) => p.id === selectedPresetId)) {
+      selectedPresetId = defaultPresetId;
+      saveStoredSelection(REASONING_STORAGE_KEY, selectedPresetId);
+    }
+
+    modelSelect.innerHTML = availableOptions
+      .map(
+        (opt) =>
+          `<option value="${escapeHtml(opt.id)}" ${opt.id === selectedModelId ? 'selected' : ''}>${escapeHtml(opt.label)}</option>`
+      )
+      .join('');
+
+    reasoningSelect.innerHTML = availablePresets
+      .map(
+        (p) =>
+          `<option value="${escapeHtml(p.id)}" ${p.id === selectedPresetId ? 'selected' : ''}>${escapeHtml(p.label)}</option>`
+      )
+      .join('');
+
+    const currentModel = getSelectedModelObject();
+    headerStatus.innerHTML = `${escapeHtml(currentModel.label)} &bull; Data Live`;
+    fabBadge.textContent = currentModel.shortLabel;
+
+    const reasoningDisabled = isSending || !currentModel.supportsReasoning;
+    reasoningSelect.disabled = reasoningDisabled;
+    reasoningSelect.classList.toggle('opacity-50', reasoningDisabled);
+    reasoningSelect.classList.toggle('cursor-not-allowed', reasoningDisabled);
+  }
+
+  // Mengunci atau membuka input, tombol kirim, dropdown model/penalaran, chip saran, dan tombol Reset
   function setSendingState(status) {
     isSending = Boolean(status);
     input.disabled = isSending;
     sendBtn.disabled = isSending;
     clearBtn.disabled = isSending;
+    modelSelect.disabled = isSending;
 
     input.classList.toggle('opacity-60', isSending);
     input.classList.toggle('cursor-not-allowed', isSending);
@@ -165,6 +265,14 @@ document.addEventListener('DOMContentLoaded', () => {
     sendBtn.classList.toggle('cursor-not-allowed', isSending);
     clearBtn.classList.toggle('opacity-50', isSending);
     clearBtn.classList.toggle('cursor-not-allowed', isSending);
+    modelSelect.classList.toggle('opacity-50', isSending);
+    modelSelect.classList.toggle('cursor-not-allowed', isSending);
+
+    const currentModel = getSelectedModelObject();
+    const reasoningDisabled = isSending || !currentModel.supportsReasoning;
+    reasoningSelect.disabled = reasoningDisabled;
+    reasoningSelect.classList.toggle('opacity-50', reasoningDisabled);
+    reasoningSelect.classList.toggle('cursor-not-allowed', reasoningDisabled);
 
     suggestionsBox.querySelectorAll('.chatbot-chip').forEach((chip) => {
       chip.disabled = isSending;
@@ -233,6 +341,33 @@ document.addEventListener('DOMContentLoaded', () => {
     messagesBox.scrollTop = messagesBox.scrollHeight;
   }
 
+  async function loadChatOptions() {
+    try {
+      const res = await ApiClient.request('/api/chatbot/options', {
+        method: 'GET'
+      });
+
+      if (res && res.data) {
+        if (Array.isArray(res.data.options) && res.data.options.length > 0) {
+          availableOptions = res.data.options;
+        }
+        if (Array.isArray(res.data.presets) && res.data.presets.length > 0) {
+          availablePresets = res.data.presets;
+        }
+        if (res.data.defaultModel) {
+          defaultModelId = res.data.defaultModel;
+        }
+        if (res.data.defaultPreset) {
+          defaultPresetId = res.data.defaultPreset;
+        }
+      }
+    } catch (_) {
+      // Tetap gunakan opsi lokal bawaan tanpa menampilkan error
+    } finally {
+      syncModelAndReasoningControls();
+    }
+  }
+
   async function sendMessage(text) {
     if (isSending) return;
 
@@ -259,7 +394,11 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const res = await ApiClient.request('/api/chatbot/message', {
         method: 'POST',
-        body: JSON.stringify({ message: cleanText })
+        body: JSON.stringify({
+          message: cleanText,
+          model: selectedModelId,
+          reasoning: selectedPresetId
+        })
       });
 
       messages.push({
@@ -282,6 +421,19 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   }
+
+  modelSelect.addEventListener('change', () => {
+    if (isSending) return;
+    selectedModelId = modelSelect.value;
+    saveStoredSelection(MODEL_STORAGE_KEY, selectedModelId);
+    syncModelAndReasoningControls();
+  });
+
+  reasoningSelect.addEventListener('change', () => {
+    if (isSending) return;
+    selectedPresetId = reasoningSelect.value;
+    saveStoredSelection(REASONING_STORAGE_KEY, selectedPresetId);
+  });
 
   toggleBtn.addEventListener('click', () => {
     isOpen = !isOpen;
@@ -328,5 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  syncModelAndReasoningControls();
   renderMessages();
+  await loadChatOptions();
 });
