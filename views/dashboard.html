@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard â€” Sportify</title>
+  <title>Dashboard — Sportify</title>
   <link rel="icon" type="image/png" href="/images/logo.png">
   <script>
     (function () {
@@ -84,13 +84,13 @@
           </svg>
         </button>
 
-        <span class="hidden sm:inline-flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium text-brand-100">
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-medium text-brand-100">
           <svg class="w-3.5 h-3.5 text-brand-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
             <circle cx="12" cy="7" r="4"></circle>
           </svg>
           <span id="nav-user-name" class="truncate max-w-[140px]">Petugas Gudang</span>
-        </span>
+        </div>
 
         <button id="btn-logout" type="button" class="inline-flex items-center gap-1.5 min-h-[40px] px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 active:bg-red-800 text-xs font-semibold text-white transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
           <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -293,4 +293,59 @@
         <div id="list-kondisi-perhatian" class="divide-y divide-slate-100 dark:divide-slate-800 text-xs flex-1">
           <p class="py-2.5"><span class="block h-8 sp-skeleton"></span></p>
           <p class="py-2.5"><span class="block h-8 sp-skeleton"></span></p>
-          <p class="py-2.5"><span class="block h
+          <p class="py-2.5"><span class="block h-8 sp-skeleton"></span></p>
+        </div>
+      </article>
+    </section>
+
+    <!-- Log Aktivitas Audit Terbaru -->
+    <section class="sp-card overflow-hidden">
+      <header class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4">
+        <h2 class="font-display text-lg font-bold text-slate-900 dark:text-white tracking-tight">Aktivitas Audit Inventaris Terbaru</h2>
+        <a href="/riwayat" class="text-xs font-semibold text-brand-700 dark:text-brand-400 hover:underline shrink-0">Lihat Semua Riwayat</a>
+      </header>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 dark:bg-slate-800/70 border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
+              <th scope="col" class="py-3 px-4">Waktu</th>
+              <th scope="col" class="py-3 px-4">Aktivitas</th>
+              <th scope="col" class="py-3 px-4">Barang</th>
+              <th scope="col" class="py-3 px-4">Rincian / Keterangan</th>
+              <th scope="col" class="py-3 px-4">Petugas</th>
+            </tr>
+          </thead>
+          <tbody id="dashboard-recent-logs" class="divide-y divide-slate-200 dark:divide-slate-800 text-xs">
+            <tr>
+              <td class="py-3.5 px-4"><span class="block h-4 w-24 sp-skeleton"></span></td>
+              <td class="py-3.5 px-4"><span class="block h-5 w-14 rounded-full sp-skeleton"></span></td>
+              <td class="py-3.5 px-4"><span class="block h-4 w-32 sp-skeleton"></span></td>
+              <td class="py-3.5 px-4"><span class="block h-4 w-48 sp-skeleton"></span></td>
+              <td class="py-3.5 px-4"><span class="block h-4 w-20 sp-skeleton"></span></td>
+            </tr>
+            <tr>
+              <td class="py-3.5 px-4"><span class="block h-4 w-24 sp-skeleton"></span></td>
+              <td class="py-3.5 px-4"><span class="block h-5 w-14 rounded-full sp-skeleton"></span></td>
+              <td class="py-3.5 px-4"><span class="block h-4 w-28 sp-skeleton"></span></td>
+              <td class="py-3.5 px-4"><span class="block h-4 w-44 sp-skeleton"></span></td>
+              <td class="py-3.5 px-4"><span class="block h-4 w-20 sp-skeleton"></span></td>
+            </tr>
+            <tr>
+              <td class="py-3.5 px-4"><span class="block h-4 w-24 sp-skeleton"></span></td>
+              <td class="py-3.5 px-4"><span class="block h-5 w-14 rounded-full sp-skeleton"></span></td>
+              <td class="py-3.5 px-4"><span class="block h-4 w-36 sp-skeleton"></span></td>
+              <td class="py-3.5 px-4"><span class="block h-4 w-40 sp-skeleton"></span></td>
+              <td class="py-3.5 px-4"><span class="block h-4 w-20 sp-skeleton"></span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/chatbot.js"></script>
+</body>
+</html>
