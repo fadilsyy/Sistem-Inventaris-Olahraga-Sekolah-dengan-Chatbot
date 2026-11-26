@@ -25,3 +25,24 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# ==========================================
+# AI Coding Agents & Skills (Local Only)
+# ==========================================
+
+# Folder skills (ui-ux-pro-max, uxui-principles, antislop, impeccable)
+.agents/
+.agent/
+
+# File pointer & konfigurasi sesi agent (antislop & Antigravity)
+AGENTS.md
+.antislop*
+antislop.md
+
+# Runtime state, cache, hook, & live preview (Impeccable)
+.impeccable/
+
+# Opsional: hapus tanda '#' di bawah jika dokumen konteks desain juga tidak ingin di-commit
+# DESIGN.md
+# PRODUCT.md
+# design-system/
