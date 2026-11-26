@@ -186,12 +186,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         '<tr><td colspan="5" class="py-8 px-4 text-center text-slate-600 dark:text-slate-400">Belum ada aktivitas tercatat. Catat barang masuk atau peminjaman melalui Data Inventaris.</td></tr>';
     } else {
       logsTbody.innerHTML = recent_movements
-        .map((row) => {
+        .map((row, rowIndex) => {
           const badge =
             TIPE_BADGES[row.tipe] ||
             'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700';
           return `
-            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors duration-150">
+            <tr class="sp-row-in hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors duration-150" style="animation-delay: ${Math.min(rowIndex, 12) * 25}ms;">
               <td class="py-3 px-4 text-slate-600 dark:text-slate-400 whitespace-nowrap">${formatWaktuWIB(row.created_at)}</td>
               <td class="py-3 px-4 whitespace-nowrap">
                 <span class="px-2.5 py-0.5 rounded-full font-bold text-[11px] ${badge}">${escapeHtml(row.tipe)}</span>

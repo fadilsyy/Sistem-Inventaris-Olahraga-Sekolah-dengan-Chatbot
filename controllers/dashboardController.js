@@ -3,7 +3,7 @@ const asyncHandler = require('../utils/asyncHandler');
 const { sendSuccess } = require('../utils/responseHelper');
 
 const getSummary = asyncHandler(async (req, res) => {
-  const summary = await dashboardService.getDashboardSummary();
+  const summary = await dashboardService.getDashboardOverview();
 
   return sendSuccess(res, {
     statusCode: 200,

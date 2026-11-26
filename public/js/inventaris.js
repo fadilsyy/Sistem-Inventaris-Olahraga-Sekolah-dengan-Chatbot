@@ -240,12 +240,12 @@ document.addEventListener('DOMContentLoaded', () => {
         total_unit_cukup: 0
       };
 
-      document.getElementById('stat-total-jenis').textContent = meta.total_jenis;
-      document.getElementById('stat-total-aset').textContent = meta.total_unit_aset;
-      document.getElementById('stat-total-tersedia').textContent = meta.total_unit_tersedia;
-      document.getElementById('stat-total-dipinjam').textContent = meta.total_unit_dipinjam;
-      document.getElementById('stat-total-rusak').textContent = meta.total_unit_rusak;
-      document.getElementById('stat-total-cukup').textContent = meta.total_unit_cukup;
+      animateCount(document.getElementById('stat-total-jenis'), meta.total_jenis);
+      animateCount(document.getElementById('stat-total-aset'), meta.total_unit_aset);
+      animateCount(document.getElementById('stat-total-tersedia'), meta.total_unit_tersedia);
+      animateCount(document.getElementById('stat-total-dipinjam'), meta.total_unit_dipinjam);
+      animateCount(document.getElementById('stat-total-rusak'), meta.total_unit_rusak);
+      animateCount(document.getElementById('stat-total-cukup'), meta.total_unit_cukup);
 
       renderTable(cachedItems);
     } catch (err) {
@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
       activeKondisiFilter.length > 0 && activeKondisiFilter.length < kondisiCheckboxes.length;
 
     tableBody.innerHTML = items
-      .map((item) => {
+      .map((item, rowIndex) => {
         const kategoriBadge =
           item.kategori === 'Sport'
             ? 'bg-brand-100 text-brand-800 dark:bg-brand-950/80 dark:text-brand-300 border border-brand-200 dark:border-brand-800/70'
@@ -315,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         return `
-          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors duration-150">
+          <tr class="sp-row-in hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors duration-150" style="animation-delay: ${Math.min(rowIndex, 12) * 25}ms;">
             <td class="py-3.5 px-4 font-mono text-xs font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">
               ${escapeHtml(item.kode_barang)}
             </td>

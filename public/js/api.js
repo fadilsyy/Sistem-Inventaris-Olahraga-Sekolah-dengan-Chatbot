@@ -57,3 +57,45 @@ const ApiClient = {
     return payload;
   }
 };
+
+function animateCount(el, targetValue, options) {
+  if (!el) return;
+  var opts = options || {};
+  var prefix = typeof opts.prefix === 'string' ? opts.prefix : '';
+  var suffix = typeof opts.suffix === 'string' ? opts.suffix : '';
+  var finalVal = Number(targetValue) || 0;
+  var prefersReduced =
+    window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (el._countRaf) {
+    cancelAnimationFrame(el._countRaf);
+    el._countRaf = null;
+  }
+
+  var startVal = Number(el.dataset.countValue) || 0;
+  el.dataset.countValue = String(finalVal);
+
+  if (prefersReduced || startVal === finalVal) {
+    el.textContent = prefix + finalVal + suffix;
+    return;
+  }
+
+  var duration = 420;
+  var startTime = performance.now();
+
+  function step(now) {
+    var progress = Math.min((now - startTime) / duration, 1);
+    var eased = 1 - Math.pow(1 - progress, 3);
+    var current = Math.round(startVal + (finalVal - startVal) * eased);
+    el.textContent = prefix + current + suffix;
+    if (progress < 1) {
+      el._countRaf = requestAnimationFrame(step);
+    } else {
+      el._countRaf = null;
+      el.textContent = prefix + finalVal + suffix;
+    }
+  }
+
+  el._countRaf = requestAnimationFrame(step);
+}
+

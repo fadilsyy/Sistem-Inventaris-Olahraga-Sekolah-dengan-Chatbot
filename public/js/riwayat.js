@@ -120,10 +120,10 @@ document.addEventListener('DOMContentLoaded', () => {
         total_unit_pinjam: 0
       };
 
-      document.getElementById('stat-total-trx').textContent = meta.total_transaksi;
-      document.getElementById('stat-total-in').textContent = `+${meta.total_unit_masuk}`;
-      document.getElementById('stat-total-out').textContent = `-${meta.total_unit_keluar}`;
-      document.getElementById('stat-total-pinjam').textContent = meta.total_unit_pinjam || 0;
+      animateCount(document.getElementById('stat-total-trx'), meta.total_transaksi);
+      animateCount(document.getElementById('stat-total-in'), meta.total_unit_masuk, { prefix: '+' });
+      animateCount(document.getElementById('stat-total-out'), meta.total_unit_keluar, { prefix: '-' });
+      animateCount(document.getElementById('stat-total-pinjam'), meta.total_unit_pinjam || 0);
 
       if (!rows.length) {
         tableBody.innerHTML = `
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       tableBody.innerHTML = rows
-        .map((row) => {
+        .map((row, rowIndex) => {
           const style = TIPE_STYLES[row.tipe] || {
             label: row.tipe,
             badge: 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700',
@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
               : `<span class="font-bold ${style.qtyClass}">${style.prefix}${row.jumlah}</span> <span class="text-xs text-slate-600 dark:text-slate-400">${escapeHtml(satuan)}</span>`;
 
           return `
-            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors duration-150">
+            <tr class="sp-row-in hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors duration-150" style="animation-delay: ${Math.min(rowIndex, 12) * 25}ms;">
               <td class="py-3.5 px-4 text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">
                 ${formatTanggalWIB(row.created_at)}
               </td>
